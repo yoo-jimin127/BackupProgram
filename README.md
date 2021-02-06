@@ -1,5 +1,4 @@
 # lsp_winter_backup_program
-------
 ### 21.02.06 (토) 프로젝트 진행 계획 및 보고
 * ~~명세 분석 및 정리 요약~~
 * ~~210203 진행되었던 명세 설명 내용 다시 이해~~
@@ -14,3 +13,5 @@
 ![image](https://user-images.githubusercontent.com/66112716/107120088-dde11700-68ce-11eb-961c-ee75df1f0237.png)
 
 ![image](https://user-images.githubusercontent.com/66112716/107120102-f7825e80-68ce-11eb-94b1-e61d5b401f80.png)
+
+![image](https://user-images.githubusercontent.com/66112716/107120123-15e85a00-68cf-11eb-9080-77e0a33dc60a.png)
