@@ -69,11 +69,11 @@
         - ```void pthread_cleanup_pop(int execute);``` : cleanup handler 함수 제거
           - execute값이 0일 경우 바로 cleanup handler 제거, 그 외의 값일 경우 cleanup handler 한번 실행 수 제거
         [cleanup handler 함수 등록 관련 내용] (https://bitsoul.tistory.com/166)
-<br>
-* **pthread_detach()** 함수 : th_id 식별자를 가지는 pthread가 부모 pthread로부터 독립<br>
+
+*  **pthread_detach()** 함수 : th_id 식별자를 가지는 pthread가 부모 pthread로부터 독립<br>
 ```int pthread_detach(pthread_t td_id);```
   - 해당 함수를 통해 독립된 pthread는 따로 pthread_join() 없어도 종료 시 자동으로 리소스 해제 됨.
-<br>
+  
 * **pthread_t pthread_self()** 함수 : 현재 동작중인 pthread의 식별자 리턴
 <br>
 
