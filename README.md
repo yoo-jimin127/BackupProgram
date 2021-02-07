@@ -97,5 +97,25 @@
   - 리턴 값 : 성공적 수행 시 0 반환, 실패 시 오류 번호 반환
  
  * [mutex 사용 예제] (https://bitsoul.tistory.com/172)
+ ![image](https://user-images.githubusercontent.com/66112716/107149616-e4d65b00-699c-11eb-9983-9257383ee01b.png)
  
+* **system()** 함수 : ```/bin/sh -c string```호출하여 지정된 명령어를 실행하고, 명령어가 끝난 후 반환함. 
+  - system()함수 사용 방법
+  ```
+  #include <stdlib.h>  //system() 함수 사용 위해 include
+  #include <unistd.h>
+  
+  int system(const char *string);
+  
+  int main (int argc, char **argv) {
+    int i = 0, retval;
+    retval = system("ls -al");
+    printf("Exit status %d\n", retval);
+  }
+  ```
+  - 리턴 값 : 성공 시 **0 아닌 값**(string 값이 NULL이고, system()이 shell을 이용할 수 있는 경우), 실패 시 0
+    - /bin/sh 실행시키기 위한 execve() 호출 실패 시 127 리턴, 다른 에러의 경우 -1, 그렇지 않으면 명령어의 리턴코드 반환
+  - system()은 다른 wait() 상태의 다른 자식에게 영향 X
+[system() 함수 참고 자료] (https://www.joinc.co.kr/w/man/3/system)
+  
  
