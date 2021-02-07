@@ -60,7 +60,7 @@
 ```void pthread_exit(void* ret_value);```
   - 보통 pthread_exit 호출 시 cleanup handler가 호출되며, 보통 리소스 해제하는 일 수행 <br>
     ![image](https://user-images.githubusercontent.com/66112716/107148300-ccaf0d80-6995-11eb-8537-395a3e6129c1.png)
-    - 쓰레드에서 자원 사용하는 것이 있었을 때, 종료 전 반납하는 등의 처리를 해야 함.
+    - 쓰레드에서 자원 사용하는 것이 있었을 때, 종료 전 반납하는 등의 처리를 해야 함.<br>
       **sol.** cleanup handler 함수 등록하여 수행
         - ```void pthread_cleanup_push(void (*routine) (void*), void* arg);``` : cleanup handler 함수 등록
           - pthread_exit()가 호출될 때 호출된 handler 정하는 함수
