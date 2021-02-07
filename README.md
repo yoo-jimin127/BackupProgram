@@ -40,7 +40,7 @@
 * pthread 사용 위해 숙지할 점
   - pthread 함수 사용을 위해 반드시 **#include <pthread.h>** 헤더파일 include
   - 컴파일 시 **-lpthread** 옵션 주어야 함<br>
-   ```ex) gcc pthread_create.c -o pthread_create -lpthread```
+   ex) ```gcc pthread_create.c -o pthread_create -lpthread```
   - pthread_t : pthread 자료형 의미
   <br>
 * **pthread_create()** 함수 : pthread 생성 기능 <br>
@@ -76,8 +76,9 @@
 <br>
 * **pthread_t pthread_self()** 함수 : 현재 동작중인 pthread의 식별자 리턴
 <br>
+
 #### 공유 자원에 대한 접근 제어를 위해 동기화, mutex 사용
-* [mutex 사용 이유, 동기화 달성 방법, mutex 생성 등에 대한 참고자료]
+* [mutex 사용 이유, 동기화 달성 방법, mutex 생성 등에 대한 참고자료] (https://www.joinc.co.kr/w/Site/Thread/Beginning/Mutex)
 * mutex 사용 시 참고할 사항
   - pthread_mutex_t : 뮤텍스 구조체
   - pthread_mutex_lock() : critical section 시작
