@@ -34,7 +34,7 @@
   - ~~pthread_join.c 코드 이해 및 함수 사용법 학습~~ **(02.07 완료)**
 * ~~pthread_detach() 함수 공부~~ **(02.07 완료)**
 * ~~pthread_mutex_init(), pthread_mutex_destroy() 함수 공부~~ **(02.07 완료)**
-* system() 함수 공부
+* ~~system() 함수 공부~~ **(02.07 완료)**
 
 #### 210207 프로젝트 보고 및 학습내용
 * pthread 사용 위해 숙지할 점
@@ -84,15 +84,18 @@
   - pthread_mutex_lock() : critical section 시작
   - pthread_mutex_unlock() : creitical section 종료
   <br>
-* **pthread_mutex_init()** 함수 : mutex 객체 초기화시키기 위해 사용
+* **pthread_mutex_init()** 함수 : mutex 객체 초기화시키기 위해 사용 <br>
 ```int pthread_mutex_init (pthread_mutex_t * mutex, const pthread_mutexatt_t *attr);```
   - 첫번째 인자 : mutex 객체를 첫번째 인자로 넣어 mutex 객체 초기화
   - 두번째 인자 : attr 을 통해 mutex 특성 변경 가능, 기본 mutex 특성 이용 시 NULL 사용
     - mutex 특성 : fast, recurisev, error checking 있음. 디폴트 : fast
   - 리턴 값 : 성공적 수행 시 0 반환, 실패 시 오류 번호 반환
     <br>
-* **pthread_mutex_destroy()** 함수 : mutex 객체 파괴
+* **pthread_mutex_destroy()** 함수 : mutex 객체 파괴 <br>
 ```int pthread_mutex_destroy(pthread_mutex_t *mutex);```
   - 인자 : 파괴될 뮤텍스
   - 리턴 값 : 성공적 수행 시 0 반환, 실패 시 오류 번호 반환
+ 
+ * [mutex 사용 예제] (https://bitsoul.tistory.com/172)
+ 
  
