@@ -67,7 +67,7 @@
           - pthread_exit()가 호출될 때 호출된 handler 정하는 함수
           - 자원 해제용 or mutex lock 해제를 위한 용도로 사용 (동기화)
         - ```void pthread_cleanup_pop(int execute);``` : cleanup handler 함수 제거
-          - execute값이 0일 경우 바로 cleanup handler 제거, 그 외의 값일 경우 cleanup handler 한번 실행 수 제거
+          - execute값이 0일 경우 바로 cleanup handler 제거, 그 외의 값일 경우 cleanup handler 한번 실행 수 제거 <br>
         [cleanup handler 함수 등록 관련 내용] (https://bitsoul.tistory.com/166)
 
 *  **pthread_detach()** 함수 : th_id 식별자를 가지는 pthread가 부모 pthread로부터 독립<br>
