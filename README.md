@@ -117,5 +117,8 @@
     - /bin/sh 실행시키기 위한 execve() 호출 실패 시 127 리턴, 다른 에러의 경우 -1, 그렇지 않으면 명령어의 리턴코드 반환
   - system()은 다른 wait() 상태의 다른 자식에게 영향 X <br>
 [system() 함수 참고 자료] (https://www.joinc.co.kr/w/man/3/system)
-  
- 
+
+
+#### 멘토님/튜터님 피드백
+* cleanup handler 관련 함수 사용 대신 **pthread_cancel()** 사용 권장
+```int pthread_cancel (pthread_t thread);``` : 인자로 주어진 쓰레드 식별번호 가지는 쓰레드의 취소 요청을 보냄. 
