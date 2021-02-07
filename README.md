@@ -23,3 +23,12 @@
   - argc : 프로그램 실행 시 지정해준 명령행 옵션의 개수가 저장되는 곳
   - argv : 프로그램 실행 시 지정해준 명령행 옵션의 문자열들이 실제로 저장되는 배열
   
+### 21.02.07 (일) 프로젝트 진행 계획 및 보고
+* pthread_create() 함수 공부
+  - pthread_create.c, pthread_create_2.c 코드 이해 및 함수 사용법 학습
+* pthread_exit() 함수 공부
+* pthread_join() 함수 공부
+  - pthread_join.c 코드 이해 및 함수 사용법 학습
+* pthread_detach() 함수 공부
+* pthread_mutex_init(), pthread_mutex_destroy() 함수 공부
+* system() 함수 공부
