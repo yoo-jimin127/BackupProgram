@@ -1,11 +1,11 @@
 # lsp_winter_backup_program
 ### 21.02.06 (토) 프로젝트 진행 계획 및 보고
-* 명세 분석 및 정리 요약 **(02.06 완료)**
-* 210203 진행되었던 명세 설명 내용 다시 이해 **(02.06 완료)**
+* ~~명세 분석 및 정리 요약~~ **(02.06 완료)**
+* ~~210203 진행되었던 명세 설명 내용 다시 이해~~ **(02.06 완료)**
 * 명세 관련 질문사항 정리 **(02.06 진행 중)**
   <br> (개념 이해가 어려운 부분이 존재해 02.07 기본 개념 학습 뒤 스스로 해결할 수 있는 질문내용을 추릴 예정입니다.)
-* thread 개념 학습 **(02.06 완료)**
-* 명세서에 있는 함수 기능 이해 **(02.06 진행 중)**
+* ~~thread 개념 학습~~ **(02.06 완료)**
+* ~~명세서에 있는 함수 기능 이해~~ **(02.07 )**
 
 #### 210206 진행 보고
 
@@ -27,12 +27,12 @@
 #### 210207 진행 계획
 (명세에 대해 전반적인 이해는 마친 상태입니다. 하지만 구현 방법에 대해 갈피가 잡히지 않아서 명세에 나와있는 함수에 대한 사용법과 멘토님께서 보내주신 thread 관련 코드들에 대한 학습을 빠르게 선행한 뒤 구현 방법에 대해 고민할 예정입니다.)
 
-* pthread_create() 함수 공부 **(02.07 완료)**
-  - pthread_create.c, pthread_create_2.c 코드 이해 및 함수 사용법 학습 **(02.07 완료)**
-* pthread_exit() 함수 공부 **(02.07 완료)**
-* pthread_join() 함수 공부 **(02.07 완료)**
-  - pthread_join.c 코드 이해 및 함수 사용법 학습 **(02.07 완료)**
-* pthread_detach() 함수 공부 
+* ~~pthread_create() 함수 공부~~ **(02.07 완료)**
+  - ~~pthread_create.c, pthread_create_2.c 코드 이해 및 함수 사용법 학습~~ **(02.07 완료)**
+* ~~pthread_exit() 함수 공부~~ **(02.07 완료)**
+* ~~pthread_join() 함수 공부~~ **(02.07 완료)**
+  - ~~pthread_join.c 코드 이해 및 함수 사용법 학습~~ **(02.07 완료)**
+* ~~pthread_detach() 함수 공부~~ **(02.07 완료)**
 * pthread_mutex_init(), pthread_mutex_destroy() 함수 공부
 * system() 함수 공부
 
@@ -58,6 +58,21 @@
   
 * **pthread_exit()** 함수 : 현재 실행 중인 thread를 종료시킬 때 사용 <br>
 ```void pthread_exit(void* ret_value);```
-  - 보통 pthread_exit 호출 시 cleanup handler가 호출되며, 보통 리소스 해제하는 일 수행
-    
+  - 보통 pthread_exit 호출 시 cleanup handler가 호출되며, 보통 리소스 해제하는 일 수행 <br>
+    ![image](https://user-images.githubusercontent.com/66112716/107148300-ccaf0d80-6995-11eb-8537-395a3e6129c1.png)
+    - 쓰레드에서 자원 사용하는 것이 있었을 때, 종료 전 반납하는 등의 처리를 해야 함.
+      **sol.** cleanup handler 함수 등록하여 수행
+        - ```void pthread_cleanup_push(void (*routine) (void*), void* arg);``` : cleanup handler 함수 등록
+          - pthread_exit()가 호출될 때 호출된 handler 정하는 함수
+          - 자원 해제용 or mutex lock 해제를 위한 용도로 사용 (동기화)
+        - ```void pthread_cleanup_pop(int execute);``` : cleanup handler 함수 제거
+          - execute값이 0일 경우 바로 cleanup handler 제거, 그 외의 값일 경우 cleanup handler 한번 실행 수 제거
+        [cleanup handler 함수 등록 관련 내용] (https://bitsoul.tistory.com/166)
+
+* **pthread_detach()** 함수 : th_id 식별자를 가지는 pthread가 부모 pthread로부터 독립<br>
+```int pthread_detach(pthread_t td_id);```
+  - 해당 함수를 통해 독립된 pthread는 따로 pthread_join() 없어도 종료 시 자동으로 리소스 해제 됨.
+  
+* **pthread_t pthread_self()** 함수 : 현재 동작중인 pthread의 식별자 리턴
+
   
