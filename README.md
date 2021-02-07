@@ -115,7 +115,7 @@
   ```
   - 리턴 값 : 성공 시 **0 아닌 값**(string 값이 NULL이고, system()이 shell을 이용할 수 있는 경우), 실패 시 0
     - /bin/sh 실행시키기 위한 execve() 호출 실패 시 127 리턴, 다른 에러의 경우 -1, 그렇지 않으면 명령어의 리턴코드 반환
-  - system()은 다른 wait() 상태의 다른 자식에게 영향 X
+  - system()은 다른 wait() 상태의 다른 자식에게 영향 X <br>
 [system() 함수 참고 자료] (https://www.joinc.co.kr/w/man/3/system)
   
  
