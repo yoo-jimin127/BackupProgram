@@ -233,9 +233,9 @@ int lstat (const char *filename, struct stat *buf);
     #include <pthread.h>
     #include <unistd.h>
     ```
-  * ssu_backup 실행 시 디렉토리 생성할 경로 인자로 입력할 때 입력한 경로로 이동하기 위한 작업 : 입력값을 system() 함수를 이용하여 해당 디렉토리로 이동
+  * ssu_backup 실행 시 디렉토리 생성할 경로 인자로 입력할 때 입력한 경로로 이동하기 위한 작업 : 입력값을 system() 함수를 이용하여 해당 디렉토리로 이동<br>
   [system() 함수 사용해 쉘에서의 명령어 기능 구현] (https://computersource.tistory.com/67)
   * usage 출력 방법 : ex) ```Usage : ./ssu_backup <dirname> ```
   * 명령어 실행 시 ```<FILENAME>```과 ```[PERIOD]```를 어떻게 구분하여 접근?
-    - 구현 방향 : 이전 영단어 프로그램에서 사용하였던 strtok() 함수를 사용해 토큰을 분리하여 구조체 또는 링크드 리스트에 저장함 -> 파일명은 해당 파일명을 불러오는 스레드로 넘기고, preiod는 백업주기를 관리하는 스레드로 넘김.
+    - 구현 방향 : 이전 영단어 프로그램에서 사용하였던 strtok() 함수를 사용해 토큰을 분리하여 구조체 또는 링크드 리스트에 저장함 <br> -> 파일명은 해당 파일명을 불러오는 스레드로 넘기고, preiod는 백업주기를 관리하는 스레드로 넘김.
     
