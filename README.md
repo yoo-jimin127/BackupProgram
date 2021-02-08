@@ -36,7 +36,7 @@
 * ~~pthread_mutex_init(), pthread_mutex_destroy() 함수 공부~~ **(02.07 완료)**
 * ~~system() 함수 공부~~ **(02.07 완료)**
 
-#### 210207 프로젝트 보고 및 학습내용
+#### 210207 프로젝트 진행 보고 및 학습내용
 * pthread 사용 위해 숙지할 점
   - pthread 함수 사용을 위해 반드시 **#include <pthread.h>** 헤더파일 include
   - 컴파일 시 **-lpthread** 옵션 주어야 함<br>
@@ -126,9 +126,10 @@
 
 ------
 ### 21.02.08 (월) 프로젝트 진행 계획 및 보고
-* stat 구조체 학습
-* 리눅스 환경에서 쉘(shell) 만드는 방법 학습
-  * 예제 코드 만들어 쉘 생성, 스크립트 작성 연습
+#### 210208 프로젝트 진행 계획
+* ~~stat 구조체 학습~~ **(02.08 완료)**
+* 리눅스 환경에서 쉘(shell) 만드는 방법 학습 **(02.08 진행 중)**
+  * 예제 코드 만들어 쉘 생성, 스크립트 작성 연습 **(02.08 진행 중)**
 * 쉘스크립트에서 로그파일 생성하고 작성하는 방법 학습
   * 예제 코드 만들어 명세 상 ui와 같은 로그파일 작성 연습
 * 명세 상 명령어별 기능 세분화, 로직 구상
@@ -141,3 +142,59 @@
   - ls 기능, vi(m) 기능
     - system() 함수를 사용하면 될 것으로 예상
   - exit 기능
+
+#### 210208 프로젝트 진행 보고 및 학습 내용
+* **stat 구조체** : 파일 정보를 저장하는 구조체
+```
+struct stat {
+  dev_t st_dev; // 장치 파일의 위치 및 여부를 기술
+  ino_t st_ino; // 파일의 inode 번호
+  mode+t st_mode; // 파일의 모드를 다룸
+  nlink_t st_nlink; // 파일의 하드링크 수
+  uid_t st_uid; // 소유자의 user ID
+  gid_t st_gid; // 소유자의 group ID
+  dev_t st_rdev; // 장치 파일 (inode)를 기술
+  off_t st_size; // 파일의 사이즈
+  blksize_t st_blksize; // 효율적인 I/O 파일 시스템 위한 블럭 사이즈
+  blkcnt_t st_blocks; // 파일에 할당한 블럭의 수
+  time_t st_atime; // 마지막 접근 시각
+  time_t st_mtime; // 마지막 수정 시각
+  time_t st_ctime; // 마지막 상태 변경 시각
+}
+```
+*note* ) 기능 중 compare <FILENAME1> <FILENAME2> 에서 파일명1과 파일명2가 동일한 파일인지 구별하는 기능에서 mtime과 파일 크기가 같은 경우의 조건으로 파일을 비교함.
+  이 때, 파일 정보를 저장하는 stat 구조체에서 st_mtime 멤버와 st_size 멤버를 호출하여 비교하는 작업을 진행해 compare 기능을 구현하면 될 것으로 보임.
+
+* stst 구조체의 정보 확인을 위한 시스템 호출
+```
+#include <sys/types.h>
+#include <sys/stat.h>
+
+int stat (const char *path, struct stat *buf);
+int fstat (int fd, struct stat *buf); //fd : 파일 디스크립터
+int lstat (const char *filename, struct stat *buf);
+```
+* **stat()** 함수 : 첫번째 인자로 pathname을 받으며, stat 구조체에 그 정보를 저장
+* **lstat()** 함수 : stat 함수와 기능 
+* **fstat()** 함수 : 해당하는 파일의 디스크립터를 받아 stat 구조체에 정보를 저장
+
+[stat 구조체 관련 파일 정보 불러오는 함수] (https://cokk.tistory.com/51)
+
+* **쉘(shell)** 이란 ?
+  * 명령어와 프로그램 실행할 때 사용하는 인터페이스
+  * 사용자와 커널 사이에서 명령을 해석해 전달하는 **명령어 해석기 기능**
+  * 쉘 자체 내애 **프로그래밍 기능**이 있어 프로그램 작성 가능 -> 쉘 프로그램 == 쉘 스크립트
+  * **사용자 환경 설정의 기능** : 초기화 파일 기능을 이용해 사용자의 환경 설정 가능
+  
+* 쉘 기본 명령어
+  * ```whoami``` : 로그인한 사용자 ID 알려줌
+  * ```passwd``` : 로그인한 사용자 ID의 암호 변경
+  * ```pwd``` : 현재 디렉토리 위치 (코딩하면서 디렉토리 위치 확인할 때 사용)
+  * ```cd``` : 디렉토리 이동
+  * ```ls``` : 파일 목록 출력
+  * ```cat``` : 파일 보기
+  * ```head/tail``` : head - 파일 시작 부분, tail - 끝 부분
+  * ```more``` : 파일보기 (화면 넘어갈 경우, 화면 넘어가기 전까지 보여줌)
+  * ```rm``` : 파일 및 폴더 삭제
+  * ```man``` : manual
+  -> 리눅스 터미널에서의 명령어와 동일한 것 같다. 별도로 익혀야 할 내용은 없을 것 같다.
