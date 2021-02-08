@@ -22,7 +22,7 @@
 - int main (int argc, char * argv[]) 사용해 실행파일 실행 시 인자 삽입
   - argc : 프로그램 실행 시 지정해준 명령행 옵션의 개수가 저장되는 곳
   - argv : 프로그램 실행 시 지정해준 명령행 옵션의 문자열들이 실제로 저장되는 배열
-  
+------
 ### 21.02.07 (일) 프로젝트 진행 계획 및 보고
 #### 210207 진행 계획
 (명세에 대해 전반적인 이해는 마친 상태입니다. 하지만 구현 방법에 대해 갈피가 잡히지 않아서 명세에 나와있는 함수에 대한 사용법과 멘토님께서 보내주신 thread 관련 코드들에 대한 학습을 빠르게 선행한 뒤 구현 방법에 대해 고민할 예정입니다.)
@@ -47,9 +47,9 @@
 ```int pthread_create (pthread_t *th_id, const pthread_attr_t *attr, void *함수명, void *arg);```
   - 첫번째 인자 : pthread 식별자, thread가 성공적으로 생성될 경우 **thread 식별값** 주어짐
   - 두번째 인자 : pthread 속성 (option), 기본적 스레드 속성 사용 시 NULL(본 프로젝트에서는 NULL)
-  - 세번째 인자 : pthread로 분기할 함수, 반환 값, 매개변수 모두 ```void*``` 로 선언된 함수만 사용 ok ```ex) void* handler (void* arg) {...}```
+  - 세번째 인자 : pthread로 분기할 함수, 리턴 값, 매개변수 모두 ```void*``` 로 선언된 함수만 사용 ok ```ex) void* handler (void* arg) {...}```
   - 네번째 인자 : 분기할 함수로 넘겨줄 인자 값, 어떤 자료형 넘겨줄 지 모르므로, void형으로 넘겨준 뒤 상황에 따라 분기하는 함수 내에서 해당 자료형으로 캐스팅해 사용
-  - 리턴 : 성공적으로 pthread 생성 시 0 반환 (return형 : int)
+  - 리턴 값 : 성공적으로 pthread 생성 시 0 리턴 (return형 : int)
   <br>
 * **pthread_join()** 함수 : 특정 pthread가 종료될 때까지 기다린 뒤, 특정 pthread가 종료시 자원을 해제시켜줌. <br>
 ```int pthread_join (pthread_t th_id, void** thead_return);```
@@ -61,7 +61,7 @@
 ```void pthread_exit(void* ret_value);```
   - 보통 pthread_exit 호출 시 cleanup handler가 호출되며, 보통 리소스 해제하는 일 수행 <br>
     ![image](https://user-images.githubusercontent.com/66112716/107148300-ccaf0d80-6995-11eb-8537-395a3e6129c1.png)
-    - 쓰레드에서 자원 사용하는 것이 있었을 때, 종료 전 반납하는 등의 처리를 해야 함.<br>
+    - 쓰레드에서 자원 사용하는 것이 있었을 때, 종료 전에 자원을 반납하는 등의 처리를 해야 함.<br>
       **sol.** cleanup handler 함수 등록하여 수행
         - ```void pthread_cleanup_push(void (*routine) (void*), void* arg);``` : cleanup handler 함수 등록
           - pthread_exit()가 호출될 때 호출된 handler 정하는 함수
@@ -89,12 +89,12 @@
   - 첫번째 인자 : mutex 객체를 첫번째 인자로 넣어 mutex 객체 초기화
   - 두번째 인자 : attr 을 통해 mutex 특성 변경 가능, 기본 mutex 특성 이용 시 NULL 사용
     - mutex 특성 : fast, recurisev, error checking 있음. 디폴트 : fast
-  - 리턴 값 : 성공적 수행 시 0 반환, 실패 시 오류 번호 반환
+  - 리턴 값 : 성공적 수행 시 0 리턴, 실패 시 오류 번호 리턴
     <br>
 * **pthread_mutex_destroy()** 함수 : mutex 객체 파괴 <br>
 ```int pthread_mutex_destroy(pthread_mutex_t *mutex);```
   - 인자 : 파괴될 뮤텍스
-  - 리턴 값 : 성공적 수행 시 0 반환, 실패 시 오류 번호 반환
+  - 리턴 값 : 성공적 수행 시 0 리턴, 실패 시 오류 번호 리턴
  
  * [mutex 사용 예제] (https://bitsoul.tistory.com/172)
  ![image](https://user-images.githubusercontent.com/66112716/107149616-e4d65b00-699c-11eb-9983-9257383ee01b.png)
@@ -113,7 +113,7 @@
     printf("Exit status %d\n", retval);
   }
   ```
-  - 리턴 값 : 성공 시 **0 아닌 값**(string 값이 NULL이고, system()이 shell을 이용할 수 있는 경우), 실패 시 0
+  - 리턴 값 : 성공 시 **0 아닌 값**(string 값이 NULL이고, system()이 shell을 이용할 수 있는 경우) 리턴, 실패 시 0 리턴
     - /bin/sh 실행시키기 위한 execve() 호출 실패 시 127 리턴, 다른 에러의 경우 -1, 그렇지 않으면 명령어의 리턴코드 반환
   - system()은 다른 wait() 상태의 다른 자식에게 영향 X <br>
 [system() 함수 참고 자료] (https://www.joinc.co.kr/w/man/3/system)
@@ -122,3 +122,22 @@
 #### 멘토님/튜터님 피드백
 * cleanup handler 관련 함수 사용 대신 **pthread_cancel()** 사용 권장
 ```int pthread_cancel (pthread_t thread);``` : 인자로 주어진 쓰레드 식별번호 가지는 쓰레드의 취소 요청을 보냄. 
+* 리턴, 반환 등의 키워드 통일하여 정리
+
+------
+### 21.02.08 (월) 프로젝트 진행 계획 및 보고
+* stat 구조체 학습
+* 리눅스 환경에서 쉘(shell) 만드는 방법 학습
+  * 예제 코드 만들어 쉘 생성, 스크립트 작성 연습
+* 쉘스크립트에서 로그파일 생성하고 작성하는 방법 학습
+  * 예제 코드 만들어 명세 상 ui와 같은 로그파일 작성 연습
+* 명세 상 명령어별 기능 세분화, 로직 구상
+  - ssu_backup 프로그램 기능
+  - add <FILENAME> [PERIOD] 기능
+  - remove <FILENAME> [PERIOD] 기능
+  - compare <FILENAME1> <FILENAME2> 기능
+  - recover <FILENAME> 기능
+  - list 기능
+  - ls 기능, vi(m) 기능
+    - system() 함수를 사용하면 될 것으로 예상
+  - exit 기능
