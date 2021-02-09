@@ -271,6 +271,7 @@ int lstat (const char *filename, struct stat *buf);
    ![image](https://user-images.githubusercontent.com/66112716/107370556-79b89000-6b26-11eb-9793-d0cf1fb71e8d.png)
 <br>
     -> argv[1]에 백업디렉토리 생성할 경로 저장됨. -> ```mkdir [argv[1]에 저장되어있는 경로]``` 이용해 입력한 위치에 백업 디렉토리 생성
+    
       * 분기문으로 각 조건에 따라 다르게 처리
         * 인자 없는 경우 : ```getcwd()```로 현재 작업 경로 알아와서 그 아래에 ```mkdir```
         * 인자 2개 이상인 경우 : usage 출력 (argv 인덱스 개수 조건으로 걸어 printf("사용법 출력")
@@ -291,5 +292,5 @@ int lstat (const char *filename, struct stat *buf);
   -> **해결.** gcc 컴파일 후 ./ssu_backup <디렉토리 생성할 경로>의 인자를 넣어 해결
   -> **해결.** printf("20190000>");으로 찍는 것임. 프롬프트 출력 방법을 변경하는 것 X
   -> **해결.** 본인의 학번 적는 것
-  <br>
+  
 * 터미널 명령어 ```mkdir```와 동일한 기능을 위해 ```int mkdir(const char *dirname);```을 사용해야할까? ```system(mkdir "~");```을 사용해야 할까?
