@@ -270,13 +270,14 @@ int lstat (const char *filename, struct stat *buf);
  * main 함수에 경로를 인자로 넘겨주기
    ![image](https://user-images.githubusercontent.com/66112716/107370556-79b89000-6b26-11eb-9793-d0cf1fb71e8d.png)
 <br>
-    -> argv[1]에 백업디렉토리 생성할 경로 저장됨. -> ```mkdir [argv[1]에 저장되어있는 경로]``` 이용해 입력한 위치에 백업 디렉토리 생성
+    -> argv[1]에 백업디렉토리 생성할 경로 저장됨. 
+    -> ```mkdir [argv[1]에 저장되어있는 경로]``` 이용해 입력한 위치에 백업 디렉토리 생성
     
-      * 분기문으로 각 조건에 따라 다르게 처리
-        * 인자 없는 경우 : ```getcwd()```로 현재 작업 경로 알아와서 그 아래에 ```mkdir```
-        * 인자 2개 이상인 경우 : usage 출력 (argv 인덱스 개수 조건으로 걸어 printf("사용법 출력")
-        * 디렉토리 찾을 수 없는 경우 : *디렉토리 찾을 수 있는지 검사하는 함수 정의해 호출*
-        * 디렉토리 접근 권한 없는 경우 : *디렉토리의 접근 권한 확인하는 함수 정의해 호출 : (https://pliss.tistory.com/95)*
+   * 분기문으로 각 조건에 따라 다르게 처리
+    * 인자 없는 경우 : ```getcwd()```로 현재 작업 경로 알아와서 그 아래에 ```mkdir```
+    * 인자 2개 이상인 경우 : usage 출력 (argv 인덱스 개수 조건으로 걸어 printf("사용법 출력")
+    * 디렉토리 찾을 수 없는 경우 : *디렉토리 찾을 수 있는지 검사하는 함수 정의해 호출*
+    * 디렉토리 접근 권한 없는 경우 : *디렉토리의 접근 권한 확인하는 함수 정의해 호출 : (https://pliss.tistory.com/95)*
   
 * mkdir 함수 or 명령어 참고 자료
   * [mkdir 함수] (https://shaeod.tistory.com/322) (https://www.it-note.kr/205)
