@@ -258,6 +258,9 @@ int lstat (const char *filename, struct stat *buf);
   }Node;
   ```
     -> 연결리스트에서 해당 백업파일이 존재하는지 등을 확인하기 위해 파일을 찾는 작업 등을 위해서 이전 프로젝트에서의 연결리스트 관련 함수 구현.
+  * 로그파일 작성 방법 : ```logfile.log``` 파일 만들어서 파일입출력 통해 fprintf() 함수로 수행 성공하면 로그파일에 넣기
+     -> 명세 : 하나의 로그파일에 작성 (파일은 하나만 만들고 그 안에서 모든 백업 기록을 다룸. 시간 순으로 로그 작성할 수 있도록 작성하기) <br>
+     - [로그파일 작성 예시] (https://m.blog.naver.com/PostView.nhn?blogId=ew32&logNo=150168169124&proxyReferer=https:%2F%2Fwww.google.com%2F)
     
 #### 구현 중 질문 사항
 * 명세 : ssu_backup 프로그램 실행 시 백업 디렉토리를 생성할 경로를 인자로 입력
