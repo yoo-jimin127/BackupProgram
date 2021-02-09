@@ -252,7 +252,7 @@ int lstat (const char *filename, struct stat *buf);
 
 #### 구현 방향 및 학습 내용
   * 기능별 명령어를 모두 함수로 구현하여 입력값에 따라 토큰으로 분리하고(strtok() 또는 다른 방법도 사용 가능할 것으로 보임) 인자로 넘김, 여기서 명령어가 입력된 토큰을 switch문으로 구별해 각 명령어의 기능이 구현되어있는 함수를 호출.
-  <br>
+  
   * 백업리스트 : 링크드 리스트 (노드 구조체로 파일별 노드를 만들고 이를 연결리스트로 연결하자 -> double linked list 사용 예정) 
   ```
   typedef struct node {
@@ -266,7 +266,7 @@ int lstat (const char *filename, struct stat *buf);
   * 로그파일 작성 방법 : ```logfile.log``` 파일 만들어서 파일입출력 통해 ```fprintf()``` 함수로 수행 성공하면 로그파일에 넣기
      -> 명세 : 하나의 로그파일에 작성 (파일은 하나만 만들고 그 안에서 모든 백업 기록을 다룸. 시간 순으로 로그 작성할 수 있도록 작성하기) <br>
      - [로그파일 작성 예시] (https://m.blog.naver.com/PostView.nhn?blogId=ew32&logNo=150168169124&proxyReferer=https:%2F%2Fwww.google.com%2F)
-     <br>
+     
  * main 함수에 경로를 인자로 넘겨주기
    ![image](https://user-images.githubusercontent.com/66112716/107370556-79b89000-6b26-11eb-9793-d0cf1fb71e8d.png)
 <br>
@@ -276,8 +276,11 @@ int lstat (const char *filename, struct stat *buf);
         * 인자 2개 이상인 경우 : usage 출력 (argv 인덱스 개수 조건으로 걸어 printf("사용법 출력")
         * 디렉토리 찾을 수 없는 경우 : *디렉토리 찾을 수 있는지 검사하는 함수 정의해 호출*
         * 디렉토리 접근 권한 없는 경우 : *디렉토리의 접근 권한 확인하는 함수 정의해 호출 : (https://pliss.tistory.com/95)*
-  <br>
-* mkdir 함수 통해 
+  
+* mkdir 함수 or 명령어 참고 자료
+  * [mkdir 함수] (https://shaeod.tistory.com/322) (https://www.it-note.kr/205)
+  * [터미널 명령어 mkdir, system() 사용] (https://m.blog.naver.com/PostView.nhn?blogId=skout123&logNo=50133723008&proxyReferer=https:%2F%2Fwww.google.com%2F)
+
     
 #### 구현 중 질문 사항
 * 명세 : ssu_backup 프로그램 실행 시 백업 디렉토리를 생성할 경로를 인자로 입력<br>
