@@ -315,23 +315,23 @@ int lstat (const char *filename, struct stat *buf);
   
   
 #### 구현 방향 및 학습 내용
-* calcFileCnt() 구현 중 백업리스트의 백업할 파일(노드) 개수를 세는 작업에서 어떠한 조건을 충족하면 cnt++을 해줄지 추가적으로 고민해볼 것.
+* calcFileCnt() 구현 중 백업리스트의 백업할 파일(노드) 개수를 세는 작업에서 어떠한 조건을 충족하면 cnt++을 해줄지 추가적으로 고민해볼 것. <br>
   -> 사용자가 입력한 경로에 생성되는 백업 디렉토리의 이름을 통일하여 그 디렉토리만 열어서 읽어오거나, 다른 부분에서 통일시킨 뒤 파일을 만들어야할 것 같음.
 
 * removeNode() 함수 구현 참고 자료
   - (https://www.geeksforgeeks.org/delete-a-linked-list-node-at-a-given-position/)
   - (http://blog.naver.com/PostView.nhn?blogId=hmin011&logNo=150154090477)
   
-* splitByToken() 함수 구현 중 공백문자를 기준으로 2번째 저장되는 토큰은 node 구조체의 fileName으로, 3번째 저장되는 토큰은 fileInfo의 filePeriod 멤버에 저장
-  -> 구조체의 멤버 선언이 잘못 된 것으로 판단됨. 수정하기
+* splitByToken() 함수 구현 중 공백문자를 기준으로 2번째 저장되는 토큰은 node 구조체의 fileName으로, 3번째 저장되는 토큰은 fileInfo의 filePeriod 멤버에 저장 <br>
+  -> 구조체의 멤버 선언이 잘못 된 것으로 판단됨. 수정하기 <br>
   -> 첫번째 토큰은 명령어. 명령어는 구조체 멤버에 저장하는 것이 아닌 해당 명령어에 따른 명령어 기능 정의 함수를 호출하여 사용하기.
   
 * checkAccessDir() 함수 구현 방향
   * main 함수에서 인자로 입력받은 argc와 argv를 바탕으로 해당 경로에 백업 디렉토리를 생성할 수 있는지의 접근 권한을 확인하는 기능
-  * 접근 권한 확인을 마친 절대경로를 따로 저장하기 위해 main 함수에서 ```char *backupdir```을 생성하고 동적할당을 해주었음.
+  * 접근 권한 확인을 마친 절대경로를 따로 저장하기 위해 main 함수에서 ```char *backupdir```을 생성하고 동적할당을 해주었음. <br>
     -> 접근 가능한 경로이면 checkAccessDir 함수에서 해당 경로를 리턴하고, 이 리턴 값을 main함수의 backupdir에 저장해 printPrompt의 인자로 넘겨 함수를 호출하는 방법으로 구현할 예정.
   * 경로로의 접근이 가능한 조건을 어떻게 확인할 수 있는지 학습하기.
   
 #### 구현 중 질문 사항
-* calcFileCnt() 함수에서 ```strcmp(dir -> d_name, "..") == 0```, ```strcmp(dir -> d_name, ".") == 0```일 경우에 대해 분기문을 작성하고 continue를 해야할까?
+* calcFileCnt() 함수에서 ```strcmp(dir -> d_name, "..") == 0```, ```strcmp(dir -> d_name, ".") == 0```일 경우에 대해 분기문을 작성하고 continue를 해야할까? <br>
   -> 명세에서 인자가 없는 경우 current working 디렉토리 밑에 백업 디렉토리 생성 및 백업하는 경우 **현재 작업 디렉토리**를 열어야 하므로 디렉토리 관련 함수를 구현한 뒤 추가적으로 조건을 넣어줄 예정
