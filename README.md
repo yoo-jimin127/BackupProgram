@@ -339,3 +339,23 @@ int lstat (const char *filename, struct stat *buf);
 #### 구현 중 질문 사항
 * calcFileCnt() 함수에서 ```strcmp(dir -> d_name, "..") == 0```, ```strcmp(dir -> d_name, ".") == 0```일 경우에 대해 분기문을 작성하고 continue를 해야할까? <br>
   -> 명세에서 인자가 없는 경우 current working 디렉토리 밑에 백업 디렉토리 생성 및 백업하는 경우 **현재 작업 디렉토리**를 열어야 하므로 디렉토리 관련 함수를 구현한 뒤 추가적으로 조건을 넣어줄 예정
+
+------
+### 21.02.15 (월) 프로젝트 진행 계획 및 보고
+#### 210215 프로젝트 진행 계획
+* 연결리스트 관련 함수 구현
+  * ~~remove 명령어 실행을 위해 연결리스트에 노드 삭제 함수 removeNode()~~ **(02.15 구현 완료)** 
+  * main 함수에서 입력받은 명령어, 파일명, 백업주기 토큰으로 분리해 구조체의 멤버에 저장하는 함수 splitByToken()
+  * 연결리스트 (백업리스트)에 저장되어있는 백업할 파일의 개수를 세는 함수 calcFileCnt()
+  * 백업 실행 중인 백업리스트(노드) 모두 출력하는 list 기능 위해 연결리스트의 노드 출력하는 함수 printBackupList()
+  
+* 백업 기능 관련 함수
+  * main 함수에서 디렉토리 접근 권한 여부 확인하는 함수 checkAccessDir()
+
+  
+#### 구현 방향 및 학습 내용
+* 노드 삭제 함수 removeNode() 구현 중, 이중 연결 리스트에서의 노드 삭제 방법 학습 <br>
+  [deleteNode()](https://movahws.tistory.com/113)
+  -> 구현 방향 findNode()와 동일한 방법으로 curr->fileName을 찾아 해당 노드의 next, prev 연결 뒤 free 처리하여 해결
+* [연결리스트 관련 함수 구현 참고 자료](http://ehpub.co.kr/tag/%EC%97%B0%EA%B2%B0%EB%A6%AC%EC%8A%A4%ED%8A%B8%EC%97%90%EC%84%9C-%EB%85%B8%EB%93%9C-%EC%A0%9C%EA%B1%B0/)
+  
