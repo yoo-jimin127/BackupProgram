@@ -13,15 +13,18 @@ int ncount; //쓰레드간 공유되는 자원
 //==========================구조체 선언부================================
 
 //백업할 파일의 정보를 저장할 구조체
+/*
 typedef struct fileInfo {
-	char absPath[300]; // 파일의 절대경로를 저장하기 위한 문자열 배열
+	char absPath[256]; // 파일의 절대경로를 저장하기 위한 문자열 배열
 	int filePeriod; // 해당 파일의 백업 주기
 	//char fileOption[30]; //파일의 백업 옵션
-}FileInfo;
+}FileInfo; */
 
 //파일명으로 연결된 리스트의 노드
 typedef struct node {
 	char fileName[256]; // 명세 : 백업할 파일명 길이 제한 255bytes
+	int filePeriod; // 해당 파일의 백업 주기
+
 	struct node *next;
 	struct node *prev;
 }Node;
@@ -37,18 +40,26 @@ typedef struct linkedList {
 
 
 int main (int argc, char* argv[]) {
-	for (int i = 0; i < argc; i++) {
+	char *backupdir; //백업디렉토리를 생성할 절대경로 값 저장 위한 문자열
+
+	backupdir = (char *)malloc(sizeof(char) * 256); //절대경로 저장을 위해 메모리 동적할당
+
+	/* for (int i = 0; i < argc; i++) {
 		printf("argv[%d] : %s \n", i, argv[i]);
 	}
 
-	printf("argc 개수 : %d\n", argc);
+	printf("argc 개수 : %d\n", argc); */
 
 	//main 함수 : 입력받은 경로 존재, 접근 여부 확인 (별도 함수로 처리)
+	backupdir = checkAccessDir(argc, argv);
+
 	//제대로 열 수 있으면 경로 프롬프트 실행 함수에 넘겨 백업 프로그램 시작
+	printPrompt(backupdir);
 
 	return 0;
 }
-//================================함수 정의부=======================================
+
+//================================연결리스트 관련 함수 정의부=======================================
 
 // 연결리스트 초기화 함수
 void initList (LinkedList *linkedList) {
@@ -91,7 +102,7 @@ void addNode (LinkedList *linkedList, Node *node) {
 
 	//리스트가 비어있지 않은 경우
 	else {
-		linkedList -> tail -> prev -> next = node; //node : 추기, tail->prev : 기존노드
+		linkedList -> tail -> prev -> next = node; //node : 추가, tail->prev : 기존노드
 		node -> next = linkedLIst -> tail;
 
 		node -> prev = linkedList -> tail -> prev;
@@ -99,4 +110,154 @@ void addNode (LinkedList *linkedList, Node *node) {
 	}
 	
 	linkedList -> fileCnt++; //연결리스트에 저장된 백업해야할 파일의 개수 카운트 ++
+}
+
+//연결리스트에 노드를 삭제하는 함수
+void removeNode (LinkedList *linkedList, char *fileName) {
+	Node *curr; //리스트를 순회하며 찾는 노드와 같은 노드 삭제
+
+	curr = linkedList -> head -> next; // curr노드의 위치를 head 노드의 next 위치로 초기화시키는 작업
+	
+	while (curr -> next != NULL) {
+		if (!strcmp(curr -> fileName, fileName)) {
+			curr -> prev -> next = curr -> next; //curr의 이전노드의 next를 curr의 다음 노드에 연결
+			curr -> next -> prev = curr -> prev; //curr의 다음노드의 prev를 curr의 이전 노드에 연결
+			free(curr); //curr의 메모리 해제
+
+			linkedList -> fileCnt--; //연결리스트에 연결되어있는 노드의 수 -1
+		}
+
+		curr = curr -> next;
+	} 
+}
+
+// list 기능을 위해 모든 백업 리스트를 출력하는 함수
+void printBackupList(LinkedList *linkedList) {
+	Node *curr;
+
+	curr = linkedList -> head -> next; //curr 노드 초기화
+	
+	while (curr -> next != NULL) {
+		printf("%s \t %d\n", curr -> fileName, curr -> filePeriod);
+
+		curr = curr -> next;
+	}
+}
+
+//================================디렉토리 관련 함수 정의부===================================
+
+//main에서 인자로 입력받은 절대경로의 접근 권한 확인 함수
+char *checkAccessDir(int argc, char **argv) {
+	char *backupdir; //반환할 경로 저장할 배열
+	struct dirent dir; //dirent 구조체
+	struct stat buf; //stat 구조체
+	DIR *dirptr; //dirent 포인터
+
+
+	backupdir = (char *)malloc(sizeof(char) * 256);
+
+	//접근 권한 확인 작업
+
+
+	return backupdir;
+}
+
+
+//'학번>' 프롬프트를 출력하는 함수
+void printPrompt (char *absPath) {
+	char userInput[300] = ""; // 사용자로부터 명령어와 filename, period를 입력받기 위한 문자열배열
+	char filePath[256] = ""; // 파일의 절대경로 저장 배열
+	int period; //파일의 백업주기 저장 변수
+
+	printf("20193017>");
+	scanf("%s", userInput);
+
+	//토큰 분리해서 명령어 호출 부분과 파일명, 백업주기 해당 기능 수행에 넘기는 작업 진행
+	char *order = strtok(userInput, " "); //공백자 기준으로 문자열 자름
+
+	while (order != NULL) {
+
+		//add <파일명> [백업주기]
+		if (!strcpy(order, "add")) {
+			filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+			period = atoi(strtok(NULL, " ")); // 다음 문자열 잘라 chPeriod에 저장
+			
+			//add 기능 담당하는 함수에 filepath와 period 인자로 넘겨주기
+		}
+		
+		//remove <파일명>
+		else if (!strcpy(order, "remove")) {
+			filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+
+			//remove 기능 담당하는 함수에 filepath 넘기기
+		}
+
+		//compare <파일명1> <파일명2>
+		else if (!strcpy(order, "compare")) {
+			filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+			char *filePath2 = strtok(NULL, " "); // 다음 문자열 잘라 filePath2에 저장
+
+			//compare 기능 담당하는 함수에 filePath, filePath2 넘기기
+		}
+
+		//recover <파일명>
+		else if (!strcpy(order, "recover")) {
+			filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+
+			//recover 기능 담당하는 함수에 filePath 넘기기
+		}
+
+		//list 명령어
+		else if (!strcmp(order, "list")) {
+			
+			//printBackupList(LinkedList);
+		}
+
+		//ls 명령어
+		else if (!strcmp(order, "ls")) {
+			//system("ls");
+
+		}
+
+		//vi 명령어
+		else if (!strcmp(order, "vi")) {
+			//system("vi");
+		}
+
+		//vim 명령어
+		else if (!strcmp(order, "vim")) {
+			//system("vim");
+		}
+
+		//exit 명령어
+		else if (!strcmp (order, "exit")) {
+			//exit(0);
+		}
+
+	}
+
+}
+
+//연결리스트(백업리스트)에 저장되어있는 백업할 파일(노드)의 개수를 세는 함수
+int calcFileCnt (LinkedList *linkedList) {
+	int cnt = 0; //노드 개수 세는 변수
+	DIR *dirptr; //디렉터리형 포인터
+
+	char buf[300] = ""; //작업 디렉토리의 이름 저장하기 위한 배열
+	struct dirent *dir; //dirent 구조체
+
+	getcwd(buf, 300); // 현재 작업디렉터리의 이름 size만큼 buf에 복사
+
+	if ((dirptr = opendir(buf)) == NULL) {
+		fprintf("stderr", "opendir error\n");
+
+		return -1;
+	}
+
+	while ((dir = readdir(dirptr)) != NULL) {
+		for (int i = 0; i < strlen(dir -> d_name); i++) {
+
+		//	cnt++; break;
+		}
+
 }
