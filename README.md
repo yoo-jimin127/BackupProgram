@@ -370,6 +370,8 @@ int lstat (const char *filename, struct stat *buf);
     
 * 파일 권한 정보 확인하기 위한 st_mode 활용 예제 및 학습내용
 [st_mode](https://www.it-note.kr/173)
+![image](https://user-images.githubusercontent.com/66112716/107954300-9f8adc80-6fdf-11eb-8b4d-4059b9bffa65.png)
+
 #### 구현 중 질문 사항
 * printPrompt() 함수에서 토큰을 분리해 첫번째 문자열(명령어), 두번째 문자열(백업할 파일 경로), 세번째 문자열(백업 주기) 중 세번째 문자열을 토큰분리와 동시에 형변환하는 방법<br>
  -> **sol.** [atoi strtok()](https://m.blog.naver.com/PostView.nhn?blogId=bestheroz&logNo=66531604&proxyReferer=https:%2F%2Fwww.google.com%2F)
