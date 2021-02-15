@@ -345,17 +345,31 @@ int lstat (const char *filename, struct stat *buf);
 #### 210215 프로젝트 진행 계획
 * 연결리스트 관련 함수 구현
   * ~~remove 명령어 실행을 위해 연결리스트에 노드 삭제 함수 removeNode()~~ **(02.15 구현 완료)** 
-  * main 함수에서 입력받은 명령어, 파일명, 백업주기 토큰으로 분리해 구조체의 멤버에 저장하는 함수 splitByToken()
-  * 연결리스트 (백업리스트)에 저장되어있는 백업할 파일의 개수를 세는 함수 calcFileCnt()
-  * 백업 실행 중인 백업리스트(노드) 모두 출력하는 list 기능 위해 연결리스트의 노드 출력하는 함수 printBackupList()
+  * ~~main 함수에서 입력받은 명령어, 파일명, 백업주기 토큰으로 분리해 각각의 함수 호출, 백업주기 저장하는 기능 printPrompt에 추가~~ **(02.15 구현 완료)**
+  * ~~백업 실행 중인 백업리스트(노드) 모두 출력하는 list 기능 위해 연결리스트의 노드 출력하는 함수 printBackupList()~~ **(02.15 구현 완료)**
   
 * 백업 기능 관련 함수
-  * main 함수에서 디렉토리 접근 권한 여부 확인하는 함수 checkAccessDir()
+  * main 함수에서 디렉토리 접근 권한 여부 확인하는 함수 checkAccessDir() **(02.15 진행 중)**
+    * 파일 및 디렉터리 접근 권한 확인을 위한 멤버 st_mode 활용법 학습 및 관련 예제 코드 작성해 연습
 
   
 #### 구현 방향 및 학습 내용
 * 노드 삭제 함수 removeNode() 구현 중, 이중 연결 리스트에서의 노드 삭제 방법 학습 <br>
-  [deleteNode()](https://movahws.tistory.com/113)
+  [deleteNode()](https://movahws.tistory.com/113) <br>
   -> 구현 방향 findNode()와 동일한 방법으로 curr->fileName을 찾아 해당 노드의 next, prev 연결 뒤 free 처리하여 해결
-* [연결리스트 관련 함수 구현 참고 자료](http://ehpub.co.kr/tag/%EC%97%B0%EA%B2%B0%EB%A6%AC%EC%8A%A4%ED%8A%B8%EC%97%90%EC%84%9C-%EB%85%B8%EB%93%9C-%EC%A0%9C%EA%B1%B0/)
   
+* [연결리스트 관련 함수 구현 참고 자료](http://ehpub.co.kr/tag/%EC%97%B0%EA%B2%B0%EB%A6%AC%EC%8A%A4%ED%8A%B8%EC%97%90%EC%84%9C-%EB%85%B8%EB%93%9C-%EC%A0%9C%EA%B1%B0/)
+
+* 파일의 정보를 저장하기 위한 구조체가 별도로 필요하지 않다고 판단 <br>
+-> fileInfo 구조체를 삭제하고 Node에 파일의 정보들을 멤버로 모두 저장할 수 있도록 수정
+
+* 파일의 접근 권한 확인하기 위한 함수 checkAccessDir() 구현 방법
+  - stat 구조체 및 dirent 구조체 사용하여 구현 예정
+    - stat 구조체의 멤버 중 ```st_mode``` 확인해 접근권한 살피기 <br>
+    - ```st_mode``` : 파일의 종류와 file에 대한 access 권한 정보, 파일의 종류 체크하는 POSIX macro
+    
+* 파일 권한 정보 확인하기 위한 st_mode 활용 예제 및 학습내용
+[st_mode](https://www.it-note.kr/173)
+#### 구현 중 질문 사항
+* printPrompt() 함수에서 토큰을 분리해 첫번째 문자열(명령어), 두번째 문자열(백업할 파일 경로), 세번째 문자열(백업 주기) 중 세번째 문자열을 토큰분리와 동시에 형변환하는 방법<br>
+ -> **sol.** [atoi strtok()](https://m.blog.naver.com/PostView.nhn?blogId=bestheroz&logNo=66531604&proxyReferer=https:%2F%2Fwww.google.com%2F)
