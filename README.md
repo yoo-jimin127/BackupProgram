@@ -381,8 +381,6 @@ int lstat (const char *filename, struct stat *buf);
 * 접근 권한 확인 함수 access() 사용할 것
 * removeNode() 함수 작성 시 free() 사용 X -> 세그멘테이션 오류 가능성 높음
 
-#### 210216 프로젝트 진행 계획
-
 #### 구현 방향 및 학습 내용
 * access() 함수 사용 방법 [access()](https://jdm.kr/blog/76)
   * ```int access (const char *pathname, int mode);```
@@ -399,4 +397,15 @@ int lstat (const char *filename, struct stat *buf);
       - F_OK : 파일 존재?
   -> 본 프로젝트 구현에서의 접근권한은 ```int mode = R_OK & W_OK```로 지정하여 읽고 쓸 수 있는지를 조건으로 진행
   
+* main() 함수에서 checkAccessDir() 함수 호출 시 넘겨준 argc, argv 인자의 개수에 따라 ```./ssu_backup /home/user/.../test1.txt``` 와 같은 실행 형태가 아닐 경우 Usage 출력하도록 함. <br>
+  -> 정상적인 수행의 경우 argc == 2여야 함. (argv[0] : ./ssu_backup, argv[1] : 절대경로)
+  
+* checkAccessDir()에서 고려해야 할 조건
+  1. 상대경로(같은 디렉토리 안에 있는 경우)를 입력받았을 때, 이를 파일작업이 가능하게 할 수 있도록 절대경로로 바꿔주어야함.
+  2. 인자 X 경우 : 현재 작업 dir 밑에 백업dir 생성
+  3. 인자로 입력받은 dir 찾을 수 X : 
+  4. 인자로 입력받은 디렉토리가 dir 파일 X :
+  5. 인자로 입력받은 dir 접근 권한 X : access() 함수의 예외로 처리
+  
 #### 구현 중 질문 사항
+* checkAccessDir()에서 고려할 조건 중 3번의 경우 cmd 명령어 ```find```나 ```dir```를 통해 인자로 입력받은 dir 찾을 수 있는 것으로 알고 있습니다. ```windows("find <dirname>");```와 같이 함수에서 입력받은 dirname을 넘겨 사용할 수 있나요??
