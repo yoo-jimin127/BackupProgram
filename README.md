@@ -403,9 +403,13 @@ int lstat (const char *filename, struct stat *buf);
 * checkAccessDir()에서 고려해야 할 조건
   1. 상대경로(같은 디렉토리 안에 있는 경우)를 입력받았을 때, 이를 파일작업이 가능하게 할 수 있도록 절대경로로 바꿔주어야함.
   2. 인자 X 경우 : 현재 작업 dir 밑에 백업dir 생성
-  3. 인자로 입력받은 dir 찾을 수 X : 
+  3. 인자로 입력받은 dir 찾을 수 X : https://incleaf.tistory.com/10 : c언어로 CMD 명령어 실행 방법 (system() 지양)
+    - dirent 구조체 사용해서 opendir의 리턴 값이 NULL이면 찾을 수 없는 것으로 처리 가능할 듯!
+    - [dirent 구조체로 인자로 입력받은 디렉토리 찾기](http://blog.naver.com/PostView.nhn?blogId=ambidext&logNo=221148484739&categoryNo=65&parentCategoryNo=0&viewDate=&currentPage=1&postListTopCurrentPage=1&from=postView&userTopListOpen=true&userTopListCount=5&userTopListManageOpen=false&userTopListCurrentPage=1)
+    
   4. 인자로 입력받은 디렉토리가 dir 파일 X :
   5. 인자로 입력받은 dir 접근 권한 X : access() 함수의 예외로 처리
   
 #### 구현 중 질문 사항
-* checkAccessDir()에서 고려할 조건 중 3번의 경우 cmd 명령어 ```find```나 ```dir```를 통해 인자로 입력받은 dir 찾을 수 있는 것으로 알고 있습니다. ```windows("find <dirname>");```와 같이 함수에서 입력받은 dirname을 넘겨 사용할 수 있나요??
+* checkAccessDir()에서 고려할 조건 중 3번의 경우 cmd 명령어 ```find```나 ```dir```를 통해 인자로 입력받은 dir 찾을 수 있는 것으로 알고 있습니다. ```windows("find <dirname>");```와 같이 함수에서 입력받은 dirname을 넘겨 사용할 수 있나요?<br>
+  -> ```DIR *dir = opendir(); dir == NULL```이면 해당 디렉토리 찾을 수 없는 것으로 처리해도 되나요??
