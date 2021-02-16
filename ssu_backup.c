@@ -122,8 +122,7 @@ void removeNode (LinkedList *linkedList, char *fileName) {
 		if (!strcmp(curr -> fileName, fileName)) {
 			curr -> prev -> next = curr -> next; //curr의 이전노드의 next를 curr의 다음 노드에 연결
 			curr -> next -> prev = curr -> prev; //curr의 다음노드의 prev를 curr의 이전 노드에 연결
-			free(curr); //curr의 메모리 해제
-
+		
 			linkedList -> fileCnt--; //연결리스트에 연결되어있는 노드의 수 -1
 		}
 
@@ -152,14 +151,31 @@ char *checkAccessDir(int argc, char **argv) {
 	struct dirent dir; //dirent 구조체
 	struct stat buf; //stat 구조체
 	DIR *dirptr; //dirent 포인터
+	
+	backupdir = (char *)malloc(sizeof(char) * 256); //문자열배열 메모리 동적할당
+	int mode = R_OK & W_OK; // 읽기, 쓰기 가능
+
+	//접근 권한 확인 작업 (인자 2개 넘겨받을 때)
+	if (argc == 2) {
+		// 성공적으로 열리면
+		if (access(argv[1], mode) == 0) {
+			backupdir = argv[1]; //backypdir에 argv[1] 넣어 리턴
+			return backupdir;
+		}
+		
+		// 성공적으로 열리지 않으면 (접근 권한 X or 찾을 수 X)
+		else {
+			printf("Usage : ./ssu_backup <dirname>\n");
+		}
+
+	//인자의 개수가 없을 경우
+	else {
+		if (argc == 1) {
+			//mkdir() 함수로 opendir() 이후 현재 작업 디렉토리에 파일 생성
+		}
+	}
 
 
-	backupdir = (char *)malloc(sizeof(char) * 256);
-
-	//접근 권한 확인 작업
-
-
-	return backupdir;
 }
 
 
