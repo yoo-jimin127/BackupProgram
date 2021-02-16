@@ -375,3 +375,28 @@ int lstat (const char *filename, struct stat *buf);
 #### 구현 중 질문 사항
 * printPrompt() 함수에서 토큰을 분리해 첫번째 문자열(명령어), 두번째 문자열(백업할 파일 경로), 세번째 문자열(백업 주기) 중 세번째 문자열을 토큰분리와 동시에 형변환하는 방법<br>
  -> **sol.** [atoi strtok()](https://m.blog.naver.com/PostView.nhn?blogId=bestheroz&logNo=66531604&proxyReferer=https:%2F%2Fwww.google.com%2F)
+------
+### 21.02.16 (화) 프로젝트 진행 계획 및 보고
+#### 지난 시간 피드백
+* 접근 권한 확인 함수 access() 사용할 것
+* removeNode() 함수 작성 시 free() 사용 X -> 세그멘테이션 오류 가능성 높음
+
+#### 210216 프로젝트 진행 계획
+
+#### 구현 방향 및 학습 내용
+* access() 함수 사용 방법 [access()](https://jdm.kr/blog/76)
+  * ```int access (const char *pathname, int mode);```
+    * 헤더 : <unistd.h>
+    * 첫번째 인자 : 파일이나 디렉토리 전체 이름
+    * 두번째 인자 : 검사할 내용
+    * 리턴 값 : 
+      - 0 : 기능 or 파일이 존재함
+      - -1 : mode에 대해 하나 이상 거절되었거나 에러가 있음. 자세한 내용은 errno에 세팅 됨.
+    * mode 값에 지정하여 사용할 수 있는 상수
+      - R_OK : 읽기 가능?
+      - W_OK : 쓰기 가능?
+      - X_OK : 실행 가능?
+      - F_OK : 파일 존재?
+  -> 본 프로젝트 구현에서의 접근권한은 ```int mode = R_OK & W_OK```로 지정하여 읽고 쓸 수 있는지를 조건으로 진행
+  
+#### 구현 중 질문 사항
