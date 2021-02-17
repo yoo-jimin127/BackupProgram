@@ -465,6 +465,8 @@ int lstat (const char *filename, struct stat *buf);
     - ```struct tm* localtime (const time_t* timer);```
     - 인자 : time_t형 변수를 가리키는 포인터
     - 리턴 값 : 멤버들이 초기화 된 tm 구조체를 가리키는 포인터
+  - 파일의 크기를 비교하는 과정에서 cmd 명령어의 cmp 사용하려면 system() -> 파일 크기 비교하는 ```sizecmp()``` 함수 or stat 구조체의 ```st_size```멤버 비교
+    - [파일 크기 비교](https://www.enqdeq.net/148)
 
 
 #### 구현 중 질문 사항
