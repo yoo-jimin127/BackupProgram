@@ -460,6 +460,7 @@ int lstat (const char *filename, struct stat *buf);
 * **compare** 기능 구현 시 ```mtime``` 비교하는 방법
   - [stat 구조체의 mtime과, tm 구조체의 mtime을 계산하는 방법](https://reakwon.tistory.com/40)
   ![image](https://user-images.githubusercontent.com/66112716/108219723-55d5f980-7179-11eb-82af-15128cf16d37.png)
+  - [tm 구조체를 사용하여 mtime ](https://modoocode.com/109)
 
 
 #### 구현 중 질문 사항
