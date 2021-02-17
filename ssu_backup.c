@@ -147,34 +147,59 @@ void printBackupList(LinkedList *linkedList) {
 
 //main에서 인자로 입력받은 절대경로의 접근 권한 확인 함수
 char *checkAccessDir(int argc, char **argv) {
-	char *backupdir; //반환할 경로 저장할 배열
-	struct dirent dir; //dirent 구조체
-	struct stat buf; //stat 구조체
-	DIR *dirptr; //dirent 포인터
+	char backupdir[256] = ""; //반환할 경로 저장할 배열
+	struct dirent *dir; //dirent 구조체
+	struct stat sb; //stat 구조체
+	DIR *dirptr = NULL; //dirent 포인터
+	char tmpdir[256] = ""; //임시로 현재 디렉토리를 가져와 저장해둘 배열
 	
-	backupdir = (char *)malloc(sizeof(char) * 256); //문자열배열 메모리 동적할당
 	int mode = R_OK & W_OK; // 읽기, 쓰기 가능
 
-	//접근 권한 확인 작업 (인자 2개 넘겨받을 때)
+	tmpdir = realpath(".", argv[1]); //상대경로를 절대경로로 변경하여 tmpdir에 저장 
+
+	//인자를 2개 넘겨받은 경우
 	if (argc == 2) {
-		// 성공적으로 열리면
-		if (access(argv[1], mode) == 0) {
-			backupdir = argv[1]; //backypdir에 argv[1] 넣어 리턴
-			return backupdir;
-		}
-		
-		// 성공적으로 열리지 않으면 (접근 권한 X or 찾을 수 X)
-		else {
-			printf("Usage : ./ssu_backup <dirname>\n");
+		//성공적으로 접근 가능한 경우
+		if (access(tmpdir, mode) == 0) {
+			sprintf(backupdir,"%s/backup_directory", tmpdir); //백업디렉토리 명까지 backupdir에 저장
+			mkdir(backupdir, 0775); //백업디렉토리 생성
+
+			return backupdir; // 접근권한 있으면 backupdir 리턴
 		}
 
-	//인자의 개수가 없을 경우
-	else {
-		if (argc == 1) {
-			//mkdir() 함수로 opendir() 이후 현재 작업 디렉토리에 파일 생성
+		//디렉토리를 찾을 수 없는 경우
+		else if ((dirptr = opendir(tmpdir)) == NULL) {
+			printf("Usage : ./ssu_backup <dirname>\n");
+			exit(0);
+		}
+
+		//인자가 디렉토리 파일이 아닌 경우
+		else if (S_ISDIR(tmpdir.st_mode) == -1) {
+			printf("Usage : ./ssu_backup <dirname>\n");
+			exit(0);
+		}
+		
+		//접근 권한이 없을 경우	
+		else if (access(tmpdir, mode) == -1) {
+			printf("Usage : ./ssu_backup <dirname>\n");
+			exit(0); //프로그램 종료
 		}
 	}
 
+	//인자로 전달받은 경로가 없을 경우
+	else if (argc == 1) {
+		getcwd(tmpdir,256); //현재 경로 가져온 뒤
+		sprintf(backupdir, "%s/backup_directory", tmpdir);
+
+		mkdir(backupdir, 0755); //실행파일이 있는 곳(현재 디렉토리)에 백업 디렉토리 생성
+		return backupdir;
+	}
+
+	//인자가 2개 이상인 경우
+	else if (argc > 2) {
+		printf("Usage : ./ssu_backup <dirname>\n");
+		exit(0);
+	}
 
 }
 
@@ -277,3 +302,29 @@ int calcFileCnt (LinkedList *linkedList) {
 		}
 
 }
+
+//add 기능을 수행하는 함수
+
+
+//remove 기능을 수행하는 함수
+
+
+//compare 기능을 수행하는 함수
+void compareFunc(char *fileName1, char *fileName2) {
+	struct stat buf1;
+	struct tm *mtime1; //fileName1의 내용 담는 stat, tm
+
+	struct stat buf2;
+	struct tm *mtime2; //fileName2의 내용 담은 stat, tm
+
+	mtime1 = localtime(&buf1->st_mtime); //fileName1의 mtime 측정
+	mtime2 = localtime(&buf2->st_mtime); //fileName2의 mtime 측정
+
+	//mtime과 파일크기 비교
+	if((mtime1 == mtime2) && ) {
+
+	}
+
+}
+
+//recover 기능을 수행하는 함수
