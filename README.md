@@ -461,6 +461,10 @@ int lstat (const char *filename, struct stat *buf);
   - [stat 구조체의 mtime과, tm 구조체의 mtime을 계산하는 방법](https://reakwon.tistory.com/40)
   ![image](https://user-images.githubusercontent.com/66112716/108219723-55d5f980-7179-11eb-82af-15128cf16d37.png)
   - [tm 구조체를 사용하여 mtime ](https://modoocode.com/109)
+  - ```localtime()```을 통해 mtime 계산 [localtime() 함수 사용 방법](https://modoocode.com/120)
+    - ```struct tm* localtime (const time_t* timer);```
+    - 인자 : time_t형 변수를 가리키는 포인터
+    - 리턴 값 : 멤버들이 초기화 된 tm 구조체를 가리키는 포인터
 
 
 #### 구현 중 질문 사항
