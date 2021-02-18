@@ -435,3 +435,41 @@ int lstat (const char *filename, struct stat *buf);
 * checkAccessDir()에서 고려할 조건 중 3번의 경우 cmd 명령어 ```find```나 ```dir```를 통해 인자로 입력받은 dir 찾을 수 있는 것으로 알고 있습니다. ```windows("find <dirname>");```와 같이 함수에서 입력받은 dirname을 넘겨 사용할 수 있나요?<br>
   -> ```DIR *dir = opendir(); dir == NULL```이면 해당 디렉토리 찾을 수 없는 것으로 처리해도 되나요??
   -> ```stat()``` or ```lstat()``` 함수 이용해서 구현해도 가능. opendir() 사용해도 가능!
+
+------
+### 21.02.17 (수) 프로젝트 진행 계획 및 보고
+#### 지난 시간 피드백
+* 절대경로를 상대경로로 바꿀 수 있는 방법 1
+  - ```realpath()```함수를 통하여 상대경로 값을 인자로 넘겨 절대경로로 바꾸어줄 수 있음.
+* 절대경로를 상대경로로 바꿀 수 있는 방법 2
+  - 명세 상 조건: 상대경로는 같은 디렉터리에만 있을 때로 정의함.
+  - ```getcwd()```를 이용해 현재 디렉터리를 알아낸 다음, ```sprintf()```이용하여 ```getcwd()/dirname```으로 경로를 변경해줄 수 있음.
+
+#### 구현 방향 및 학습 내용
+* 같은 디렉터리 내에 존재하는 상대경로를 프로그램 실행 시 인자로 전달받았을 때, ```getcwd()```로 현재 디렉터리를 알아와 임시 버퍼에 저장한 뒤 ```sprintf()```로 백업 디렉토리 만들어줌.
+
+* ```realpath()```함수 사용하여 [실행파일의 절대경로를 얻어내는 방법](https://webnautes.tistory.com/1448) 
+
+* ```mkdir()``` 사용하여 인자로 받은 경로에 백업 디렉토리 생성하는 작업 구현 계획
+  - 먼저 ```realpath()```함수 사용해 상대경로를 절대경로로 바꿔놓음. (tmpdir 변수에 저장)
+  - ```sprintf()```로 변환된 절대경로에 backup_directory 추가해서 저장. (backupdir 변수에 저장)
+  - ```mkdir(backupdir, 0775);```으로 디렉토리 파일 생성
+  - backupdir 리턴
+-> 인자로 전달받은 경로에 백업디렉토리 만드는 방법이 이게 맞는지 의문..
+
+* **compare** 기능 구현 시 ```mtime``` 비교하는 방법
+  - [stat 구조체의 mtime과, tm 구조체의 mtime을 계산하는 방법](https://reakwon.tistory.com/40)
+  ![image](https://user-images.githubusercontent.com/66112716/108219723-55d5f980-7179-11eb-82af-15128cf16d37.png)
+  - [tm 구조체를 사용하여 mtime ](https://modoocode.com/109)
+  - ```localtime()```을 통해 mtime 계산 [localtime() 함수 사용 방법](https://modoocode.com/120)
+    - ```struct tm* localtime (const time_t* timer);```
+    - 인자 : time_t형 변수를 가리키는 포인터
+    - 리턴 값 : 멤버들이 초기화 된 tm 구조체를 가리키는 포인터
+  - 파일의 크기를 비교하는 과정에서 cmd 명령어의 cmp 사용하려면 system() -> 파일 크기 비교하는 ```sizecmp()``` 함수 or stat 구조체의 ```st_size```멤버 비교
+    - [파일 크기 비교](https://www.enqdeq.net/148)
+
+
+#### 구현 중 질문 사항
+* 프로그램 실행 시 절대경로 인자가 없을 경우, 현재 작업 디렉토리 밑에 백업 디렉토리를 생성할 때 ```backup_dir```의 이름으로 저장해야하나요? 자유롭게 백업 디렉토리명을 생성해도 되는 것인지 궁금합니다!
+
+* 명세 2p에서의 로그파일 작성 예시에서는 ```<절대경로>/~~~.txt```와 같이 txt 파일로 저장되어 있는데, 백업파일으로 추가하는 파일의 형식은 txt파일로 제한해두었다고 생각하고 구현해도 괜찮은가요??
