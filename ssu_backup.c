@@ -131,7 +131,7 @@ void removeNode (LinkedList *linkedList, char *fileName) {
 }
 
 // list 기능을 위해 모든 백업 리스트를 출력하는 함수
-void printBackupList(LinkedList *linkedList) {
+void listFunc(LinkedList *linkedList) {
 	Node *curr;
 
 	curr = linkedList -> head -> next; //curr 노드 초기화
@@ -200,9 +200,7 @@ char *checkAccessDir(int argc, char **argv) {
 		printf("Usage : ./ssu_backup <dirname>\n");
 		exit(0);
 	}
-
 }
-
 
 //'학번>' 프롬프트를 출력하는 함수
 void printPrompt (char *absPath) {
@@ -239,6 +237,7 @@ void printPrompt (char *absPath) {
 			char *filePath2 = strtok(NULL, " "); // 다음 문자열 잘라 filePath2에 저장
 
 			//compare 기능 담당하는 함수에 filePath, filePath2 넘기기
+			//compareFunc(filePath, filePath2);
 		}
 
 		//recover <파일명>
@@ -251,12 +250,12 @@ void printPrompt (char *absPath) {
 		//list 명령어
 		else if (!strcmp(order, "list")) {
 			
-			//printBackupList(LinkedList);
+			//listFunc(LinkedList);
 		}
 
 		//ls 명령어
 		else if (!strcmp(order, "ls")) {
-			//system("ls");
+			//lsFunc();
 
 		}
 
@@ -272,7 +271,7 @@ void printPrompt (char *absPath) {
 
 		//exit 명령어
 		else if (!strcmp (order, "exit")) {
-			//exit(0);
+			exit(0);
 		}
 
 	}
@@ -311,20 +310,84 @@ int calcFileCnt (LinkedList *linkedList) {
 
 //compare 기능을 수행하는 함수
 void compareFunc(char *fileName1, char *fileName2) {
+	FILE *file1;
 	struct stat buf1;
-	struct tm *mtime1; //fileName1의 내용 담는 stat, tm
+	struct tm *mtime1; 
+	size_t size1; //fileName1의 내용 담는 file, stat, tm, size
 
+	FILE *file2;
 	struct stat buf2;
-	struct tm *mtime2; //fileName2의 내용 담은 stat, tm
+	struct tm *mtime2;
+	size_t size2; //fileName2의 내용 담은 file, stat, tm, size
 
 	mtime1 = localtime(&buf1->st_mtime); //fileName1의 mtime 측정
 	mtime2 = localtime(&buf2->st_mtime); //fileName2의 mtime 측정
-
-	//mtime과 파일크기 비교
-	if((mtime1 == mtime2) && ) {
-
+	
+	size1 = getFileSize(fileName1);
+	size2 = getFileSize(fileName2);
+	
+	//file not exist
+	if (!(file1 = fopen(fimeName1, "r")) && !(file2 = fopen(fileName2, "r"))) {
+		fclose(file1);
+		fclose(file2);
+		
+		printf("file not exist.\n");
+		exit(1);
 	}
 
+	//not general file
+	if (!S_ISREG(buf1.st_mode) && !S_ISREG(buf2.st_mode)) {
+		printf("file is not regular file.\n");
+		exit(1);
+	}
+
+	//not 2 function parameter
+
+	//mtime과 파일크기 비교
+	if (strcmp(mtime1, mtime2) == 0) {
+		if (size1 == size2) {
+			printf("fileName1 == fileName2 \n");
+		}
+
+		else {
+			printf("fileName1 -> mtime : %s , file size : %d \n", mtime1, size1);
+			printf("fileName2 -> mtime : %s , file size : %d \n", mtime2, size2);
+		}
+	}
+}
+
+//get file size (for 'compare' func)
+static size_t getFileSize(const char *fileName) {
+	struct stat sb;
+	
+	if (stat(fileName, &sb) != 0) {
+		fprintf(stderr, "'stat' failed for '%s' : %s.\n", fileName, strerror(errno));
+		exit(1);
+	}
+
+	return sb.st_size;
 }
 
 //recover 기능을 수행하는 함수
+
+//ls function
+void lsFunc() {
+	DIR *dirptr = NULL;
+	struct dirent *dir = NULL;
+	int printCnt = 0;
+
+	char *cwd = (char*)malloc(sizeof(char) * 256);
+	
+	getcwd(cwd, 256); //get current working directory
+
+	if ((dirptr = opendir(cwd)) == NULL) {
+		printf("ls function error : current directory cannot open\n");
+		exit(1);
+	}
+
+	while((dir = readdir(dirptr)) != NULL) {
+		printf("%s\t", dir->d_name);
+	}
+
+	close(dirptr);
+}
