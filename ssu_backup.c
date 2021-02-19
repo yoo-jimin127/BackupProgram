@@ -37,6 +37,19 @@ typedef struct linkedList {
 }LinkedList;
 
 //================================함수 선언부=======================================
+void initList (LinkedList *linkedList);
+Node *findNode (LinkedList *linkedList, char *fileName);
+void addNode (LinkedList *linkedList, Node *node);
+void removeNode (LinkedList *linkedList, char *fileName);
+void listFunc(LinkedList *linkedList);
+
+char *checkAccessDir(int argc, char **argv);
+void printPrompt (char *absPath);
+int calcFileCnt (LinkedList *linkedList);
+void removeFunc(char *fileName);
+void compareFunc(char *fileName1, char *fileName2);
+static size_t getFileSize(const char *fileName);
+void lsFunc();
 
 
 int main (int argc, char* argv[]) {
@@ -255,23 +268,40 @@ void printPrompt (char *absPath) {
 
 		//ls 명령어
 		else if (!strcmp(order, "ls")) {
-			//lsFunc();
-
+			char *dirpath = strtok(NULL, " "); //next token
+			char *lsOrder = "ls ";
+			
+			strcat(lsOrder, dirpath); //ls dirname
+			system(lsOrder);
 		}
 
 		//vi 명령어
 		else if (!strcmp(order, "vi")) {
-			//system("vi");
+			char *dirpath = strtok(NULL, " "); //next token
+			char *viOrder = "vi ";
+
+			strcat(viOrder, dirpath);
+			system(viOrder);
 		}
 
 		//vim 명령어
 		else if (!strcmp(order, "vim")) {
-			//system("vim");
+			char *dirpath = strtok(NULL, " "); //next token
+			char *vimOrder = "vim ";
+
+			strcat(vimOrder, dirpath);
+			system(vimOrder);
 		}
 
 		//exit 명령어
 		else if (!strcmp (order, "exit")) {
 			exit(0);
+			return;
+		}
+
+		//another order
+		else {
+			printf("input value is not exist.\n");
 		}
 
 	}
@@ -306,7 +336,12 @@ int calcFileCnt (LinkedList *linkedList) {
 
 
 //remove 기능을 수행하는 함수
+void removeFunc(char *fileName) {
+	Node *removeNode;
+	removeNode = (Node *)malloc(sizeof(Node));
 
+	removeNode = findNode(fileName);
+}
 
 //compare 기능을 수행하는 함수
 void compareFunc(char *fileName1, char *fileName2) {
@@ -389,5 +424,5 @@ void lsFunc() {
 		printf("%s\t", dir->d_name);
 	}
 
-	close(dirptr);
+	close(dirptr); 
 }
