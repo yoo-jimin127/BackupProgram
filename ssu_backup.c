@@ -14,10 +14,10 @@ int ncount; //쓰레드간 공유되는 자원
 
 //백업할 파일의 정보를 저장할 구조체
 /*
-typedef struct fileInfo {
-	char absPath[256]; // 파일의 절대경로를 저장하기 위한 문자열 배열
-	int filePeriod; // 해당 파일의 백업 주기
-	//char fileOption[30]; //파일의 백업 옵션
+   typedef struct fileInfo {
+   char absPath[256]; // 파일의 절대경로를 저장하기 위한 문자열 배열
+   int filePeriod; // 해당 파일의 백업 주기
+//char fileOption[30]; //파일의 백업 옵션
 }FileInfo; */
 
 //파일명으로 연결된 리스트의 노드
@@ -57,12 +57,6 @@ int main (int argc, char* argv[]) {
 
 	backupdir = (char *)malloc(sizeof(char) * 256); //절대경로 저장을 위해 메모리 동적할당
 
-	/* for (int i = 0; i < argc; i++) {
-		printf("argv[%d] : %s \n", i, argv[i]);
-	}
-
-	printf("argc 개수 : %d\n", argc); */
-
 	//main 함수 : 입력받은 경로 존재, 접근 여부 확인 (별도 함수로 처리)
 	backupdir = checkAccessDir(argc, argv);
 
@@ -86,6 +80,19 @@ void initList (LinkedList *linkedList) {
 	linkedList -> head -> prev = NULL;//tail->next와 head->prev 초기화
 
 	linkedList -> fileCnt = 0; //백업할 파일 개수 카운트 0으로 초기화
+}
+
+// make node function
+Node *makeNode (char *fileName) {
+	Node *newNode;
+	
+	newNode = (Node *)malloc(sizeof(Node));
+	strcpy(newNode -> fileName, fileName);
+
+	newNode -> next = NULL;
+	newNode -> prev = NULL;
+
+	return newNode;
 }
 
 //연결리스트에서 노드 찾는 함수
@@ -121,7 +128,7 @@ void addNode (LinkedList *linkedList, Node *node) {
 		node -> prev = linkedList -> tail -> prev;
 		linkedList -> tail -> prev = node;
 	}
-	
+
 	linkedList -> fileCnt++; //연결리스트에 저장된 백업해야할 파일의 개수 카운트 ++
 }
 
@@ -130,12 +137,12 @@ void removeNode (LinkedList *linkedList, char *fileName) {
 	Node *curr; //리스트를 순회하며 찾는 노드와 같은 노드 삭제
 
 	curr = linkedList -> head -> next; // curr노드의 위치를 head 노드의 next 위치로 초기화시키는 작업
-	
+
 	while (curr -> next != NULL) {
 		if (!strcmp(curr -> fileName, fileName)) {
 			curr -> prev -> next = curr -> next; //curr의 이전노드의 next를 curr의 다음 노드에 연결
 			curr -> next -> prev = curr -> prev; //curr의 다음노드의 prev를 curr의 이전 노드에 연결
-		
+
 			linkedList -> fileCnt--; //연결리스트에 연결되어있는 노드의 수 -1
 		}
 
@@ -143,12 +150,22 @@ void removeNode (LinkedList *linkedList, char *fileName) {
 	} 
 }
 
+//add new file into backup list
+void addFileToList (char *dirName, Node *node) {
+	FILE *fptr;
+
+	fptr = fopen("backupList.list", "a");
+	fprintf(fptr, "%s", node -> fileName);
+
+	fclose(fptr);
+}
+
 // list 기능을 위해 모든 백업 리스트를 출력하는 함수
 void listFunc(LinkedList *linkedList) {
 	Node *curr;
 
 	curr = linkedList -> head -> next; //curr 노드 초기화
-	
+
 	while (curr -> next != NULL) {
 		printf("%s \t %d\n", curr -> fileName, curr -> filePeriod);
 
@@ -165,7 +182,7 @@ char *checkAccessDir(int argc, char **argv) {
 	struct stat sb; //stat 구조체
 	DIR *dirptr = NULL; //dirent 포인터
 	char tmpdir[256] = ""; //임시로 현재 디렉토리를 가져와 저장해둘 배열
-	
+
 	int mode = R_OK & W_OK; // 읽기, 쓰기 가능
 
 	tmpdir = realpath(".", argv[1]); //상대경로를 절대경로로 변경하여 tmpdir에 저장 
@@ -191,7 +208,7 @@ char *checkAccessDir(int argc, char **argv) {
 			printf("Usage : ./ssu_backup <dirname>\n");
 			exit(0);
 		}
-		
+
 		//접근 권한이 없을 경우	
 		else if (access(tmpdir, mode) == -1) {
 			printf("Usage : ./ssu_backup <dirname>\n");
@@ -220,90 +237,114 @@ void printPrompt (char *absPath) {
 	char userInput[300] = ""; // 사용자로부터 명령어와 filename, period를 입력받기 위한 문자열배열
 	char filePath[256] = ""; // 파일의 절대경로 저장 배열
 	int period; //파일의 백업주기 저장 변수
+	LinkedList linkedList;
 
-	printf("20193017>");
-	scanf("%s", userInput);
+	initList(&linkedList);
 
-	//토큰 분리해서 명령어 호출 부분과 파일명, 백업주기 해당 기능 수행에 넘기는 작업 진행
-	char *order = strtok(userInput, " "); //공백자 기준으로 문자열 자름
+	while(1) {
+		printf("20193017>");
+		fgets(userInput, 256, stdin);
 
-	while (order != NULL) {
+		userInput[strlen(userInput) -1] = '\0';
 
-		//add <파일명> [백업주기]
-		if (!strcpy(order, "add")) {
-			filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
-			period = atoi(strtok(NULL, " ")); // 다음 문자열 잘라 chPeriod에 저장
-			
-			//add 기능 담당하는 함수에 filepath와 period 인자로 넘겨주기
+		//토큰 분리해서 명령어 호출 부분과 파일명, 백업주기 해당 기능 수행에 넘기는 작업 진행
+		char *order = strtok(userInput, " "); //공백자 기준으로 문자열 자름
+
+		while (order != NULL) {
+
+			//add <파일명> [백업주기]
+			if (!strcpy(order, "add")) {
+				filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+				period = atoi(strtok(NULL, " ")); // 다음 문자열 잘라 chPeriod에 저장
+
+				//add 기능 담당하는 함수에 filepath와 period 인자로 넘겨주기
+			}
+
+			//remove <파일명>
+			else if (!strcpy(order, "remove")) {
+				filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+
+				//remove 기능 담당하는 함수에 filepath 넘기기
+			}
+
+			//compare <파일명1> <파일명2>
+			else if (!strcpy(order, "compare")) {
+				int paramCnt = 0; //fileName1, fileName2 
+
+				filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+				if (strlen(filePath) != 0) {
+					paremCnt++;
+				}
+
+				char *filePath2 = strtok(NULL, " "); // 다음 문자열 잘라 filePath2에 저장
+				if (strlen(filePath) != 0) {
+					paramCnt++;
+				}
+
+				if (paramCnt != 2) {
+					printf("not 2 paremeter.\n");
+					exit(1);
+				}
+
+				//compare 기능 담당하는 함수에 filePath, filePath2 넘기기
+				//compareFunc(filePath, filePath2);
+			}
+
+			//recover <파일명>
+			else if (!strcpy(order, "recover")) {
+				filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+
+				//recover 기능 담당하는 함수에 filePath 넘기기
+			}
+
+			//list 명령어
+			else if (!strcmp(order, "list")) {
+
+				//listFunc(LinkedList);
+			}
+
+			//ls 명령어
+			else if (!strcmp(order, "ls")) {
+				/*char *dirpath = strtok(NULL, " "); //next token
+				  char *lsOrder = "ls ";
+
+				  strcat(lsOrder, dirpath); //ls dirname
+				  system(lsOrder);*/
+				system(userInput);
+			}
+
+			//vi 명령어
+			else if (!strcmp(order, "vi")) {
+				/*char *dirpath = strtok(NULL, " "); //next token
+				  char *viOrder = "vi ";
+
+				  strcat(viOrder, dirpath);
+				  system(viOrder);*/
+				system(userInput);
+			}
+
+			//vim 명령어
+			else if (!strcmp(order, "vim")) {
+				/*char *dirpath = strtok(NULL, " "); //next token
+				  char *vimOrder = "vim ";
+
+				  strcat(vimOrder, dirpath);
+				  system(vimOrder);*/
+				system(userInput);
+			}
+
+			//exit 명령어
+			else if (!strcmp (order, "exit")) {
+				exit(0);
+				return;
+			}
+
+			//another order
+			else {
+				printf("input value is not exist.\n");
+			}
+
 		}
-		
-		//remove <파일명>
-		else if (!strcpy(order, "remove")) {
-			filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
-
-			//remove 기능 담당하는 함수에 filepath 넘기기
-		}
-
-		//compare <파일명1> <파일명2>
-		else if (!strcpy(order, "compare")) {
-			filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
-			char *filePath2 = strtok(NULL, " "); // 다음 문자열 잘라 filePath2에 저장
-
-			//compare 기능 담당하는 함수에 filePath, filePath2 넘기기
-			//compareFunc(filePath, filePath2);
-		}
-
-		//recover <파일명>
-		else if (!strcpy(order, "recover")) {
-			filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
-
-			//recover 기능 담당하는 함수에 filePath 넘기기
-		}
-
-		//list 명령어
-		else if (!strcmp(order, "list")) {
-			
-			//listFunc(LinkedList);
-		}
-
-		//ls 명령어
-		else if (!strcmp(order, "ls")) {
-			char *dirpath = strtok(NULL, " "); //next token
-			char *lsOrder = "ls ";
-			
-			strcat(lsOrder, dirpath); //ls dirname
-			system(lsOrder);
-		}
-
-		//vi 명령어
-		else if (!strcmp(order, "vi")) {
-			char *dirpath = strtok(NULL, " "); //next token
-			char *viOrder = "vi ";
-
-			strcat(viOrder, dirpath);
-			system(viOrder);
-		}
-
-		//vim 명령어
-		else if (!strcmp(order, "vim")) {
-			char *dirpath = strtok(NULL, " "); //next token
-			char *vimOrder = "vim ";
-
-			strcat(vimOrder, dirpath);
-			system(vimOrder);
-		}
-
-		//exit 명령어
-		else if (!strcmp (order, "exit")) {
-			exit(0);
-			return;
-		}
-
-		//another order
-		else {
-			printf("input value is not exist.\n");
-		}
-
 	}
 
 }
@@ -327,20 +368,52 @@ int calcFileCnt (LinkedList *linkedList) {
 	while ((dir = readdir(dirptr)) != NULL) {
 		for (int i = 0; i < strlen(dir -> d_name); i++) {
 
-		//	cnt++; break;
+			//	cnt++; break;
 		}
-
+	}
 }
 
 //add 기능을 수행하는 함수
+void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) {
+	FILE *fptr = NULL;
+	DIR *dptr = NULL;
+	char buf[256];
+	Node *newFile;
 
+	if ((dptr = opendir(dirPath)) == NULL) {
+		printf("opendir() error\n");
+		exit(1);
+	}
+
+	newFile = makeNode(fileName);
+	addNode(linkedList, newFile);
+	addFileToList(newFile);
+
+	fptr = fopen(newFile, "w");
+
+	newFile -> filePeriod = period;
+}
 
 //remove 기능을 수행하는 함수
 void removeFunc(char *fileName) {
-	Node *removeNode;
-	removeNode = (Node *)malloc(sizeof(Node));
+	Node *removeFile;
+	FILE *fptr;
 
-	removeNode = findNode(fileName);
+	removeFile = (Node *)malloc(sizeof(Node));
+
+	removeFile = findNode(fileName);
+	fptr = fopen(removeFile, "r");
+
+	if (fptr != NULL) {
+		removeNode(removeFile);
+	}
+
+	else { //fptr == NULL
+		fprintf(fptr, "fopen() error\n");
+		exit(0);
+	}
+
+	fclose(fptr);
 }
 
 //compare 기능을 수행하는 함수
@@ -357,15 +430,15 @@ void compareFunc(char *fileName1, char *fileName2) {
 
 	mtime1 = localtime(&buf1->st_mtime); //fileName1의 mtime 측정
 	mtime2 = localtime(&buf2->st_mtime); //fileName2의 mtime 측정
-	
+
 	size1 = getFileSize(fileName1);
 	size2 = getFileSize(fileName2);
-	
+
 	//file not exist
 	if (!(file1 = fopen(fimeName1, "r")) && !(file2 = fopen(fileName2, "r"))) {
 		fclose(file1);
 		fclose(file2);
-		
+
 		printf("file not exist.\n");
 		exit(1);
 	}
@@ -375,8 +448,6 @@ void compareFunc(char *fileName1, char *fileName2) {
 		printf("file is not regular file.\n");
 		exit(1);
 	}
-
-	//not 2 function parameter
 
 	//mtime과 파일크기 비교
 	if (strcmp(mtime1, mtime2) == 0) {
@@ -394,7 +465,7 @@ void compareFunc(char *fileName1, char *fileName2) {
 //get file size (for 'compare' func)
 static size_t getFileSize(const char *fileName) {
 	struct stat sb;
-	
+
 	if (stat(fileName, &sb) != 0) {
 		fprintf(stderr, "'stat' failed for '%s' : %s.\n", fileName, strerror(errno));
 		exit(1);
@@ -404,6 +475,9 @@ static size_t getFileSize(const char *fileName) {
 }
 
 //recover 기능을 수행하는 함수
+void recoverFunc() {
+
+}
 
 //ls function
 void lsFunc() {
@@ -412,7 +486,7 @@ void lsFunc() {
 	int printCnt = 0;
 
 	char *cwd = (char*)malloc(sizeof(char) * 256);
-	
+
 	getcwd(cwd, 256); //get current working directory
 
 	if ((dirptr = opendir(cwd)) == NULL) {
@@ -426,3 +500,27 @@ void lsFunc() {
 
 	close(dirptr); 
 }
+
+//=======================logfile.log======================
+void write_log(char *msg) {
+	FILE *fptr;
+	char logMsg[1024];
+
+	time_t uctTime;
+	struct tm *loctime;
+
+	(void)time(&uctTime);
+
+	memset(logMsg, 0, 1024);
+	loctime = localtime(&uctTime);
+
+	fptr = fopen(DF_LOG_FILE_NAME, "a");
+
+	if (fptr != NULL) {
+		fprintf(fptr, logMsg);
+	}
+
+	fclose(fptr);
+}
+
+
