@@ -543,7 +543,7 @@ int lstat (const char *filename, struct stat *buf);
 * 아직 구현이 마무리되지 않은 add, recover 명령어에 대해 구현할 것.
 
   ------
-### 21.02.19 (금) 프로젝트 진행 계획 및 보고
+### 21.02.20 (토) 프로젝트 진행 계획 및 보고
 
 #### 구현 방향 및 학습 내용
 * **로그파일 생성 후 내용 작성** : [로그파일 작성](https://m.blog.naver.com/PostView.nhn?blogId=ew32&logNo=150168169124&proxyReferer=https:%2F%2Fwww.google.com%2F)
