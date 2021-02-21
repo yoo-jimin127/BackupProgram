@@ -597,4 +597,12 @@ int lstat (const char *filename, struct stat *buf);
     - [참고 자료 1](https://rosagigantea.tistory.com/229), [참고 자료 2](https://www.it-note.kr/141)
     - int형으로 리턴받은 년월일 시분초를 전체 시간을 나타내는 perform_full으로 바꾸기 위해 ```itoa()``` 함수 사용 ([itoa()](https://com12127.tistory.com/4))
 
-* 스레드 생성 예제 학습 코드 
+* 스레드 생성 예제 학습 코드 실행 화면
+![image](https://user-images.githubusercontent.com/66112716/108627354-77482580-7498-11eb-97c3-7f475e1bbc61.png)
+
+* 스레드 수행시간 & 수행 항목 로그파일에 기록하는 예제 코드 실행 화면
+ ![image](https://user-images.githubusercontent.com/66112716/108628520-ca24db80-749e-11eb-800c-f629c34a2cb2.png)
+  - 스레드가 제대로 생성되고 수행시간과 수행 내용의 일부가 test.log파일에 저장되는 것 확인할 수 있음.
+  - ```pthread_mutex_lock()```, ```pthread_mutex_unlock()```함수를 사용하여 동기화를 진행하였으나 더 학습이 필요할 것으로 보임.
+  - 오류 : 가장 마지막에 생성된 스레드의 정보만이 로그파일에 기록되어 디버깅 과정 중에 있음. <br>
+    -> 해당 예제를 완료한 뒤 백업 프로그램 스레드 함수에 해당 기능을 추가하면 될 것으로 보임.
