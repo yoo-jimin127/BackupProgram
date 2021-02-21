@@ -22,6 +22,7 @@ int ncount; //쓰레드간 공유되는 자원
 
 //파일명으로 연결된 리스트의 노드
 typedef struct node {
+	char absPath[256];
 	char fileName[256]; // 명세 : 백업할 파일명 길이 제한 255bytes
 	int filePeriod; // 해당 파일의 백업 주기
 
@@ -501,7 +502,7 @@ void lsFunc() {
 	close(dirptr); 
 }
 
-//=======================logfile.log======================
+//============================= << logfile.log >> ================================
 void write_log(char *msg) {
 	FILE *fptr;
 	char logMsg[1024];
@@ -514,7 +515,7 @@ void write_log(char *msg) {
 	memset(logMsg, 0, 1024);
 	loctime = localtime(&uctTime);
 
-	fptr = fopen(DF_LOG_FILE_NAME, "a");
+	fptr = fopen("logfile.log", "a");
 
 	if (fptr != NULL) {
 		fprintf(fptr, logMsg);
@@ -523,4 +524,51 @@ void write_log(char *msg) {
 	fclose(fptr);
 }
 
+//=========================== << pthread function >> ===================================
+void *makePthread_addFunc (void *addFile) {
+	struct stat buf;
+	DIR *dirptr;
+	struct dirent *dir;
+	time_t timer;
+	struct tm *loctm;
 
+	char fileName[256] = ""; // only fileName
+	char fullfilePath[256] = ""; // absPath/filename
+	int perform_year;
+	int perform_month;
+	int perform_day;
+	int perform_hour;
+	int perform_min;
+	int perform_sec;
+	char * perform_full;
+
+	pid_t pid; //process id
+	pthread_t tid; //thread id
+
+	Node *data = (Node *)addFile;
+
+	pid = getpid();
+	tid = pthread_self();
+
+	char* thread_name = (char*)addNode;
+	perform_full = (char *)malloc(sizeof(char) *100);
+
+	if ((timer = time(NULL)) == -1) { //in seconds
+		perror("time() call error");
+		return;
+	}
+
+	if ((loctm = localtime(&timer)) == NULL) { //separate time, put in struct tm
+		perror("localtime() call error");
+		return;
+	}
+
+	perform_year = loctm -> tm_year + 1900;
+	perform_month = loctm -> tm_mon +1;
+	perform_day = loctm -> tm_mday;
+	perform_hour = loctm -> tm_hour;
+	perform_min = loctm -> tm_min;
+	perform_sec = loctm -> tm_sec;
+	sprintf(perform_full, "[%d%d%d %d%d%d] ", perform_year, perform_month, perform_day, perform_hour, perform_min, perform_sec); // to write logfile, ex) [190311 153320] 
+
+}
