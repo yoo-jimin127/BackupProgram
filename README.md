@@ -585,4 +585,16 @@ int lstat (const char *filename, struct stat *buf);
 ### 21.02.21 (일) 프로젝트 진행 계획 및 보고
 
 #### 구현 방향 및 학습 내용
-* ```pthread_create()```함수를 이용하여 add 명령어에서 파일을 추가할 경우 파일:스레드 = 1:1으로 스레드를 생성하는 함수 구현
+* ```pthread_create()```함수를 이용하여 add 명령어에서 파일을 추가할 경우 파일:스레드 = 1:1으로 스레드를 생성하는 함수 구현 중
+
+* 스레드 관련 구현 내용
+  - 백업주기만큼 백업을 진행하기 위해 ```sleep()```함수의 인자에 해당 파일의 filePeriod를 넣어 해당 백업 주기마다 백업을 진행하도록 함.
+  - ```pid_t pid``` : 프로세스 아이디, ```pthread_t tid``` : 스레드 아이디 즉, 프로세스 식별자 & 스레드 식별자
+  - ```pthread_self()```함수를 통해 현재 쓰레드의 아이디를 얻어올 수 있음. [파일별로 스레드 생성하는 방법](https://bitsoul.tistory.com/167)
+  - 수행 시간을 [연월일 시분초]로 가져오기 위한 방법 : ```time_t timer```, ```struct_tm *t```tm 구조체를 통해 
+    1. 현재 시간을 초 단위로 얻고 (```time_t timer = time(NULL);```)
+    2. 초 단위로 얻은 시간을 분리해 구조체에 넣어주는 작업 (```struct tm *t = localtime(&timer);```)을 진행
+    - [참고 자료 1](https://rosagigantea.tistory.com/229), [참고 자료 2](https://www.it-note.kr/141)
+    - int형으로 리턴받은 년월일 시분초를 전체 시간을 나타내는 perform_full으로 바꾸기 위해 ```itoa()``` 함수 사용 ([itoa()](https://com12127.tistory.com/4))
+
+* 스레드 생성 예제 학습 코드 
