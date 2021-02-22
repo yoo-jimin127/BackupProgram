@@ -614,4 +614,7 @@ int lstat (const char *filename, struct stat *buf);
 * **mutex** : 여러 개의 쓰레드가 공유하는 데이터를 보호하기 위해 사용.
   - 보호하고자 하는 데이터를 다루는 코드 영역을 한번에 하나의 쓰레드만 실행 가능하도록.
   - ```pthread_mutex_init(pthread_mutex_t mutex_lock, NULL)``` : 뮤텍스 객체를 기본 특성으로 초기화 (add 명령어 함수 구현부에서 뮤텍스를 먼저 초기화해준 뒤, 스레드를 생성하는 로직)
-  - ```pthread_mutex_lock()```과 ```pthread_mutex_unlock()``` 사이에서는 **한번에 하나의 스레드만** 수행할 수 있음, 먼저 수행되는 스레드가 종료될 때까지 **다른 스레드 : 대기상태로 존재**, 앞선 스레드가 lock ~ unlock 영역을 빠져나오면 진입 
+  - ```pthread_mutex_lock()```과 ```pthread_mutex_unlock()``` 사이에서는 **한번에 하나의 스레드만** 수행할 수 있음, 먼저 수행되는 스레드가 종료될 때까지 **다른 스레드 : 대기상태로 존재**, 앞선 스레드가 lock ~ unlock 영역을 빠져나오면 진입
+  
+* mutex를 사용하여 멀티스레드의 동기화 진행 예제 코드 실행 결과
+* ![image](https://user-images.githubusercontent.com/66112716/108715062-b12f2f80-755d-11eb-9a5a-f85d0b25dceb.png)
