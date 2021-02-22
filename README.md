@@ -617,4 +617,11 @@ int lstat (const char *filename, struct stat *buf);
   - ```pthread_mutex_lock()```과 ```pthread_mutex_unlock()``` 사이에서는 **한번에 하나의 스레드만** 수행할 수 있음, 먼저 수행되는 스레드가 종료될 때까지 **다른 스레드 : 대기상태로 존재**, 앞선 스레드가 lock ~ unlock 영역을 빠져나오면 진입
   
 * mutex를 사용하여 멀티스레드의 동기화 진행 예제 코드 실행 결과
-* ![image](https://user-images.githubusercontent.com/66112716/108715062-b12f2f80-755d-11eb-9a5a-f85d0b25dceb.png)
+ ![image](https://user-images.githubusercontent.com/66112716/108715062-b12f2f80-755d-11eb-9a5a-f85d0b25dceb.png)
+  - 뮤텍스를 사용하여 스레드 공유 자원을 나타내는 변수 g_count를 통해 하나의 스레드씩 실행됨을 확인
+
+![image](https://user-images.githubusercontent.com/66112716/108719930-88119d80-7563-11eb-982c-e1bcbadb4bca.png)
+  - 스레드 실행 시간을 ```struct_tm```구조체와 ```time_t```를 사용해 ```sleep()```함수로 수행의 지연을 주었음에도 모두 같은 시간으로 수행시간이 찍힘.
+  - ```clock_gettime()```함수의 사용을 통해서도 시간을 측정할 수 있음. add와 remove, recover 명령어에서 명령어를 실행할 때에 수행 시간을 구해 로그작성 함수에 fulltime을 넘겨야 하는지, 스레드 수행 부분에서 수행 시간을 구해 로그 작성 함수에 넘겨야 하는지 더 생각해보기.
+
+* 스레드 생성과 뮤텍스를 이용해 멀티스레드의 동기화를 진행하는 방법에 대해서는 예제코드를 실행해보며 어느정도 숙지가 된 것으로 느껴짐. 210223 (화)부터 다시 프로그램 구현으로 돌아가 add, remove, recover 명령어에서 이를 적용시켜 구현할 예정.
