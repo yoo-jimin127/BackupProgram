@@ -9,7 +9,7 @@
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; //쓰레드 초기화
 int ncount; //쓰레드간 공유되는 자원
-
+int result; // pthread_join -> return value
 //==========================구조체 선언부================================
 
 //백업할 파일의 정보를 저장할 구조체
@@ -29,6 +29,15 @@ typedef struct node {
 	struct node *next;
 	struct node *prev;
 }Node;
+
+typedef struct backup_node {
+	int backup_time;
+	int file_size;
+	char file_content[1024];
+
+	struct backuo_node *next;
+	struct backup_node *prev;
+}Backup_node;
 
 //백업할 파일들을 연결해놓은 이중 연결리스트 (백업리스트)
 typedef struct linkedList {
@@ -172,6 +181,10 @@ void listFunc(LinkedList *linkedList) {
 
 		curr = curr -> next;
 	}
+}
+
+void sortBackupNode (LinkedList *linkedList) {
+
 }
 
 //================================디렉토리 관련 함수 정의부===================================
@@ -379,7 +392,27 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	FILE *fptr = NULL;
 	DIR *dptr = NULL;
 	char buf[256];
+	struct tm *loctm;
+	time_t timer;
+	char logmsg[1024] = "";
+	int year, mon, day, hour, min, sec;
+
 	Node *newFile;
+
+	char *fulltime = (char *)malloc(sizeof(char) * 100);
+
+	memset(logmsg, 0, 1024);
+	timer = time(NULL);
+	loctm = localtime(&timer);
+
+	year = loctm -> tm_year + 1900;
+	mon = loctm -> tm_mon +1;
+	day = loctm -> tm_mday;
+	hour = loctm -> tm_hour;
+	min = loctm -> tm_min;
+	sec = loctm -> tm_day;
+
+	sprintf(fulltime, "[%d%d%d %d%d%d] ", year, mon, day, hour, min, sec);
 
 	if ((dptr = opendir(dirPath)) == NULL) {
 		printf("opendir() error\n");
@@ -391,28 +424,59 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	addFileToList(newFile);
 
 	fptr = fopen(newFile, "w");
-
+	
+	//struct Node member 
 	newFile -> filePeriod = period;
+
+	sprintf(logmsg, "%s %s%s added\n", fulltime, dirPath, fileName);
+	write_log(logmsg);
 }
 
 //remove 기능을 수행하는 함수
-void removeFunc(char *fileName) {
+void removeFunc(LinkedList *linkedList, char *fileName) {
 	Node *removeFile;
 	FILE *fptr;
+	struct tm *loctm;
+	time_t timer;
+	char logmsg[1024] = "";
+	char *fulltime;
+	char *abspath;
+	int year, mon, day, hour, min, sec;
 
 	removeFile = (Node *)malloc(sizeof(Node));
+	fulltime = (char *)malloc(sizeof(char) * 100);
+	abspath = (char *)malloc(sizeof(char) * 256);
+
+	timer = time(NULL);
+	loctm = localtime(&timer);
+
+	year = loctm -> tm_year + 1900;
+	mon = loctm -> tm_mon + 1;
+	day = loctm -> tm_mday;
+	hour = loctm -> tm_hour;
+	min = loctm -> tm_min;
+	sec = loctm -> tm_sec;
+
+	sprintf(fulltime, "[%d%d%d %d%d%d] ", year, mon, day, hour, min, sec);
 
 	removeFile = findNode(fileName);
+	strcpy(abspath, removeFile -> absPath);
 	fptr = fopen(removeFile, "r");
 
 	if (fptr != NULL) {
 		removeNode(removeFile);
-	}
+	} //remove file successfully
 
 	else { //fptr == NULL
 		fprintf(fptr, "fopen() error\n");
 		exit(0);
 	}
+
+	// pthread name not defined
+	pthread_join(DEFINE_PTHREAD_NAME, (void *)&result);
+
+	sprintf(logmsg, "%s %s%s deleted\n", fulltime, abspath, fileName);
+	write_log(logmsg);
 
 	fclose(fptr);
 }
@@ -476,7 +540,7 @@ static size_t getFileSize(const char *fileName) {
 }
 
 //recover 기능을 수행하는 함수
-void recoverFunc() {
+void recoverFunc(LinkedList *linkedList, char *fileName) {
 
 }
 
@@ -507,14 +571,6 @@ void write_log(char *msg) {
 	FILE *fptr;
 	char logMsg[1024];
 
-	time_t uctTime;
-	struct tm *loctime;
-
-	(void)time(&uctTime);
-
-	memset(logMsg, 0, 1024);
-	loctime = localtime(&uctTime);
-
 	fptr = fopen("logfile.log", "a");
 
 	if (fptr != NULL) {
@@ -525,7 +581,7 @@ void write_log(char *msg) {
 }
 
 //=========================== << pthread function >> ===================================
-void *makePthread_addFunc (void *addFile) {
+void *thread_function (void *addFile) {
 	struct stat buf;
 	DIR *dirptr;
 	struct dirent *dir;
