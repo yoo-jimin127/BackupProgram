@@ -680,6 +680,10 @@ int lstat (const char *filename, struct stat *buf);
   - ```atoi(num)```함수를 사용하여 문자열을 숫자로 바꾸어 저장할 수 있음. [문자열 숫자로 바꾸는 atoi() 함수](https://dojang.io/mod/page/view.php?id=385)
   - 또는 형변환을 하지 않고도 바로 비교할 수 있는 방법
 ![image](https://user-images.githubusercontent.com/66112716/108935166-96a9a300-7690-11eb-9bba-f5b5844f9c47.png)
+  - [노드의 특정 멤버를 기준으로 값을 비교하여 정렬하는 방법](https://wnsgml972.github.io/data%20structure/2018/05/07/datastructure_ascending_insert_node/) 또는 [자료구조 연결리스트 오름차순 정렬](http://blog.naver.com/PostView.nhn?blogId=sejin7307&logNo=140126970646) <br>
+  -> 굳이 백업수행내용이 저장된 리스트를 정렬할 필요가 있는지 재고. 백업 내용이 수행되면 동기화를 적용한 스레드의 내용이 시간순서대로 로그파일에 기록되지 않을까 하는 판단. 예제코드 만들어 확인하는 .
+  
+* recover 명령어 실행 시 수행내용 로그파일에 기록하도록 구현.
 
 #### 구현 중 질문 사항
 * 로그파일에 기록되는 수행 내역이 added, generated, deleted인데 added = add 명령어 수행 시 작성되는 로그, generated = recover 명령어 수행 시 작성되는 로그, deleted = remove 명령어 수행 시 작성되는 로그가 맞나요??
