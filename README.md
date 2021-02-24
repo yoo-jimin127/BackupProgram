@@ -670,3 +670,16 @@ int lstat (const char *filename, struct stat *buf);
     ```
     가 저장되어있다고 했을 때, 1번을 선택하면 프롬프트 창에 "안녕하세요 저는 ~~~ 입니다."(변경된 파일의 내용)가 출력되어야 하는 것인가요?? <br>
     그렇다면 test1.txt 파일은 가장 최근에 백업된 내용이 아닌 사용자가 선택한 순번의 백업수행 내용으로 돌아가야하는 것인가요??
+    
+    ------
+### 21.02.22 (월) 프로젝트 진행 계획 및 보고
+
+#### 구현 방향 및 학습 내용
+* 노드 정렬 함수 (백업 시간 기준) : 해당 명령어 파일에서는 tm_year, ... , tm_sec에 저장되어있는 int형 자료를 recovertime 변수에 sprintf()함수를 통해 문자열 배열로 담아 백업 수행 내역을 관리하는 노드 Backup_Node에 저장함. <br>
+  -> 문자열 형태로 저장되어있는 시간을 오름차순으로 정렬하기 위해서는 이를 정수형으로 비교하여 정렬해야 함.
+  - ```atoi(num)```함수를 사용하여 문자열을 숫자로 바꾸어 저장할 수 있음. [문자열 숫자로 바꾸는 atoi() 함수](https://dojang.io/mod/page/view.php?id=385)
+  - 또는 형변환을 하지 않고도 바로 비교할 수 있는 방법
+![image](https://user-images.githubusercontent.com/66112716/108935166-96a9a300-7690-11eb-9bba-f5b5844f9c47.png)
+
+#### 구현 중 질문 사항
+* 로그파일에 기록되는 수행 내역이 added, generated, deleted인데 added = add 명령어 수행 시 작성되는 로그, generated = recover 명령어 수행 시 작성되는 로그, deleted = remove 명령어 수행 시 작성되는 로그가 맞나요??
