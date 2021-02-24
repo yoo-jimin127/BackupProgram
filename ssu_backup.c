@@ -7,6 +7,7 @@
 #include <sys/stat.h> // stat 구조체 사용 위한 헤더파일
 #include <dirent.h> // 디렉토리 정보 읽어오기 위한 헤더파일
 
+#define MAX_SIZE 99999 // to store file content
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; //쓰레드 초기화
 int ncount; //쓰레드간 공유되는 자원
 int result; // pthread_join -> return value
@@ -30,14 +31,14 @@ typedef struct node {
 	struct node *prev;
 }Node;
 
-typedef struct backup_node {
+typedef struct backupNode {
 	int backup_time;
 	int file_size;
-	char file_content[1024];
+	char file_content[MAX_SIZE];
 
-	struct backuo_node *next;
-	struct backup_node *prev;
-}Backup_node;
+	struct backupNode *next;
+	struct backupNode *prev;
+}BackupNode;
 
 //백업할 파일들을 연결해놓은 이중 연결리스트 (백업리스트)
 typedef struct linkedList {
@@ -45,6 +46,13 @@ typedef struct linkedList {
 	Node *tail; //연결리스트의 tail 노드
 	int fileCnt; //백업할 파일들의 개수를 세기위한 카운트
 }LinkedList;
+
+
+typedef struct backupContentList {
+	BackupNode *head;
+	BackupNode *tail;
+	int backup_perform_cnt;
+}BackupContentList;
 
 //================================함수 선언부=======================================
 void initList (LinkedList *linkedList);
@@ -183,9 +191,12 @@ void listFunc(LinkedList *linkedList) {
 	}
 }
 
-void sortBackupNode (LinkedList *linkedList) {
+void sortBackupNode (BackupContentList *backupContentList, BackupNode *backupNode) {
+
 
 }
+
+
 
 //================================디렉토리 관련 함수 정의부===================================
 
@@ -540,8 +551,31 @@ static size_t getFileSize(const char *fileName) {
 }
 
 //recover 기능을 수행하는 함수
-void recoverFunc(LinkedList *linkedList, char *fileName) {
+void recoverFunc(LinkedList *linkedList, char *dirName, char *fileName) {
+	struct tm *loctm;
+	time_t timer;
+	int year, mon, day, hour, min, sec;
+	char logmsg[1024] = "";
+	Backup_Node *backupNode;
 
+	char *fulltime = (char *)malloc(sizeof(char)*100);
+	char *recovertime = (char *)malloc(sizeof(char)*100); // to sort backup perform time
+
+	timer = time(NULL);
+	loctm = localtime(&timer);
+
+	year = loctm -> tm_year + 1900;
+	mon = loctm -> tm_mon +1;
+	day = loctm -> tm_day;
+	hour = loctm -> tm_hour;
+	min = loctm -> tm_min;
+	sec = loctm -> tm_sec;
+
+	sprintf(fulltime, "[%d%d%d %d%d%d] ", year, mon, day hour, min, sec);
+	sprintf(recovertime, "%d%d%d%d%d%d", year, mon, day, hour, min, sec);
+
+	sprintf(logmsg, "%s %s%s_%s generated", fulltime, dirName, fileName, recovertime);
+	write_log(logmsg);
 }
 
 //ls function
