@@ -32,6 +32,10 @@ typedef struct node {
 }Node;
 
 typedef struct backupNode {
+	pid_t pid;
+	pthread_t tid;
+	char fileName[256];
+	int period;
 	int backup_time;
 	int file_size;
 	char file_content[MAX_SIZE];
@@ -191,13 +195,6 @@ void listFunc(LinkedList *linkedList) {
 	}
 }
 
-void sortBackupNode (BackupContentList *backupContentList, BackupNode *backupNode) {
-
-
-}
-
-
-
 //================================디렉토리 관련 함수 정의부===================================
 
 //main에서 인자로 입력받은 절대경로의 접근 권한 확인 함수
@@ -263,8 +260,10 @@ void printPrompt (char *absPath) {
 	char filePath[256] = ""; // 파일의 절대경로 저장 배열
 	int period; //파일의 백업주기 저장 변수
 	LinkedList linkedList;
+	BackupContentList backupContentList;
 
 	initList(&linkedList);
+	initList(&backupContentList);
 
 	while(1) {
 		printf("20193017>");
@@ -407,6 +406,7 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	time_t timer;
 	char logmsg[1024] = "";
 	int year, mon, day, hour, min, sec;
+	int thr_id; //thread id
 
 	Node *newFile;
 
@@ -434,13 +434,11 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	addNode(linkedList, newFile);
 	addFileToList(newFile);
 
-	fptr = fopen(newFile, "w");
-	
 	//struct Node member 
 	newFile -> filePeriod = period;
 
-	sprintf(logmsg, "%s %s%s added\n", fulltime, dirPath, fileName);
-	write_log(logmsg);
+	//sprintf(logmsg, "%s %s%s added\n", fulltime, dirPath, fileName);
+	//write_log(logmsg);
 }
 
 //remove 기능을 수행하는 함수
@@ -552,11 +550,15 @@ static size_t getFileSize(const char *fileName) {
 
 //recover 기능을 수행하는 함수
 void recoverFunc(LinkedList *linkedList, char *dirName, char *fileName) {
+	struct stat sb;
 	struct tm *loctm;
 	time_t timer;
 	int year, mon, day, hour, min, sec;
-	char logmsg[1024] = "";
-	Backup_Node *backupNode;
+	int backupFileCnt = 0; //backup file count
+	int cnt = 0; //iterator
+	int userChoise;
+	//char logmsg[1024] = "";
+	BackupNode *backupNode;
 
 	char *fulltime = (char *)malloc(sizeof(char)*100);
 	char *recovertime = (char *)malloc(sizeof(char)*100); // to sort backup perform time
@@ -571,11 +573,37 @@ void recoverFunc(LinkedList *linkedList, char *dirName, char *fileName) {
 	min = loctm -> tm_min;
 	sec = loctm -> tm_sec;
 
-	sprintf(fulltime, "[%d%d%d %d%d%d] ", year, mon, day hour, min, sec);
-	sprintf(recovertime, "%d%d%d%d%d%d", year, mon, day, hour, min, sec);
+	//sprintf(fulltime, "[%d%d%d %d%d%d] ", year, mon, day hour, min, sec);
+	//sprintf(recovertime, "%d%d%d%d%d%d", year, mon, day, hour, min, sec);
 
-	sprintf(logmsg, "%s %s%s_%s generated", fulltime, dirName, fileName, recovertime);
-	write_log(logmsg);
+	//sprintf(logmsg, "%s %s%s_%s generated", fulltime, dirName, fileName, recovertime);
+	//write_log(logmsg);
+	
+	backupFileCnt = calcFileCnt(backupContentList);
+	backupNode = (BackupNode *)malloc(sizeof(BackupNode)*backupFileCnt);
+	
+	while(cnt < backupFileCnt) {
+
+	}
+
+	//print number & sorted backup file list
+	printf("0. exit\n");
+	for (int i = 0; i < backupFileCnt; i++) {
+		printf("%d %d\t\t%dbytes", i+1, backupNode -> backup_time, sb.st_size);
+	}
+
+	scanf("%d", &userChoice);
+
+	for (int i = 0; i < backupFileCnt; i++) {
+		if (userChoice == 0) {
+			exit(0);
+		}
+
+		else if (userChoice == i) {
+			//backup
+		}
+	}
+
 }
 
 //ls function
@@ -605,7 +633,7 @@ void write_log(char *msg) {
 	FILE *fptr;
 	char logMsg[1024];
 
-	fptr = fopen("logfile.log", "a");
+	fptr = fopen("logfile.log", "w");
 
 	if (fptr != NULL) {
 		fprintf(fptr, logMsg);
@@ -615,7 +643,7 @@ void write_log(char *msg) {
 }
 
 //=========================== << pthread function >> ===================================
-void *thread_function (void *addFile) {
+void *thread_function (void *addFile, int period) {
 	struct stat buf;
 	DIR *dirptr;
 	struct dirent *dir;
@@ -623,7 +651,8 @@ void *thread_function (void *addFile) {
 	struct tm *loctm;
 
 	char fileName[256] = ""; // only fileName
-	char fullfilePath[256] = ""; // absPath/filename
+	char fullFilePath[256] = ""; // absPath/filename
+	char logmsg[1024] = "";
 	int perform_year;
 	int perform_month;
 	int perform_day;
@@ -634,13 +663,21 @@ void *thread_function (void *addFile) {
 
 	pid_t pid; //process id
 	pthread_t tid; //thread id
+	char* thread_name = (char*)addNode;
 
 	Node *data = (Node *)addFile;
 
 	pid = getpid();
 	tid = pthread_self();
 
-	char* thread_name = (char*)addNode;
+	BackupNode -> pid = pid;
+	BackupNode -> tid = tid; 
+	BackupNode -> period = period;
+	BackupNode -> fileName = addFile;
+
+	Node -> fileName = addFile;
+	Node -> filePeriod = period;
+	
 	perform_full = (char *)malloc(sizeof(char) *100);
 
 	if ((timer = time(NULL)) == -1) { //in seconds
@@ -653,6 +690,8 @@ void *thread_function (void *addFile) {
 		return;
 	}
 
+	memset(logmsg, 0, 1024);
+
 	perform_year = loctm -> tm_year + 1900;
 	perform_month = loctm -> tm_mon +1;
 	perform_day = loctm -> tm_mday;
@@ -660,5 +699,14 @@ void *thread_function (void *addFile) {
 	perform_min = loctm -> tm_min;
 	perform_sec = loctm -> tm_sec;
 	sprintf(perform_full, "[%d%d%d %d%d%d] ", perform_year, perform_month, perform_day, perform_hour, perform_min, perform_sec); // to write logfile, ex) [190311 153320] 
+
+	pthread_mutex_lock(&mutex); //pthread mutex lock
+	sprintf(logmsg, "%s %s added\n", perform_full, fullFilePath);
+	write_log(logmsg);
+	pthread_mutex_unlock(&mutex); //pthread mutex unlock
+
+	sleep(BackupNode -> period);// backup perform period
+	stat(BackupNode -> fileName, &buf);
+	
 
 }
