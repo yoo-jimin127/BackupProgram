@@ -1,11 +1,4 @@
-#include <stdio.h> 
-#include <stdlib.h> //system() 함수 사용 위한 헤더파일
-#include <string.h>
-#include <pthread.h> // 스레드 함수 사용 위한 헤더파일
-#include <unistd.h> // 표준 심볼 상수 및 자료형 정의 헤더파일
-#include <sys/types.h> 
-#include <sys/stat.h> // stat 구조체 사용 위한 헤더파일
-#include <dirent.h> // 디렉토리 정보 읽어오기 위한 헤더파일
+#include "backupProgram.h"
 
 #define MAX_SIZE 99999 // to store file content
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; //쓰레드 초기화
@@ -21,6 +14,7 @@ int result; // pthread_join -> return value
 //char fileOption[30]; //파일의 백업 옵션
 }FileInfo; */
 
+/*
 //파일명으로 연결된 리스트의 노드
 typedef struct node {
 	char absPath[256];
@@ -57,7 +51,7 @@ typedef struct backupContentList {
 	BackupNode *tail;
 	int backup_perform_cnt;
 }BackupContentList;
-
+*/
 //================================함수 선언부=======================================
 void initList (LinkedList *linkedList);
 Node *findNode (LinkedList *linkedList, char *fileName);
@@ -409,6 +403,9 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	int thr_id; //thread id
 
 	Node *newFile;
+	pthread_t thread_t;
+	int status;
+	int a =100;
 
 	char *fulltime = (char *)malloc(sizeof(char) * 100);
 
@@ -435,7 +432,15 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	addFileToList(newFile);
 
 	//struct Node member 
+	newFile -> absPath = dirPath;
+	newFile -> fileName = fileName;
 	newFile -> filePeriod = period;
+
+	//thread make. edit later
+	if (pthread_create(&thread_t, NULL, thread_function, (void *)&a) < 0) {
+		perror("thread create error: ");
+		exit(0);
+	}
 
 	//sprintf(logmsg, "%s %s%s added\n", fulltime, dirPath, fileName);
 	//write_log(logmsg);
@@ -481,7 +486,7 @@ void removeFunc(LinkedList *linkedList, char *fileName) {
 		exit(0);
 	}
 
-	// pthread name not defined
+	// pthread name not defined edit later
 	pthread_join(DEFINE_PTHREAD_NAME, (void *)&result);
 
 	sprintf(logmsg, "%s %s%s deleted\n", fulltime, abspath, fileName);
@@ -644,11 +649,15 @@ void write_log(char *msg) {
 
 //=========================== << pthread function >> ===================================
 void *thread_function (void *addFile, int period) {
+	Node *node = (Node *)addFile;
+
 	struct stat buf;
+	struct stat copystat;
 	DIR *dirptr;
 	struct dirent *dir;
 	time_t timer;
 	struct tm *loctm;
+	char **backupFile;
 
 	char fileName[256] = ""; // only fileName
 	char fullFilePath[256] = ""; // absPath/filename
@@ -664,19 +673,15 @@ void *thread_function (void *addFile, int period) {
 	pid_t pid; //process id
 	pthread_t tid; //thread id
 	char* thread_name = (char*)addNode;
-
-	Node *data = (Node *)addFile;
+	backupFile = (char *)malloc(sizeof(char) *256);
 
 	pid = getpid();
 	tid = pthread_self();
 
-	BackupNode -> pid = pid;
-	BackupNode -> tid = tid; 
-	BackupNode -> period = period;
-	BackupNode -> fileName = addFile;
-
-	Node -> fileName = addFile;
-	Node -> filePeriod = period;
+	node -> pid = pid;
+	node -> tid = tid; 
+	node -> filePeriod = period;
+	node -> fileName = addFile;
 	
 	perform_full = (char *)malloc(sizeof(char) *100);
 
