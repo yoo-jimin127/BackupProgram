@@ -826,8 +826,18 @@ int lstat (const char *filename, struct stat *buf);
 * **recover 명령어**
   - [문자열 복사를 시작하고자 하는 부분의 포인터로 strcpy()하는 방법](https://blockdmask.tistory.com/56)
   - 문자열의 포인터를 인자로 그 부분부터 strcpy()를 하는 부분에서 헤맴.
-  - 
+  - ![image](https://user-images.githubusercontent.com/66112716/109657100-77d37100-7ba8-11eb-8ce5-32828b27f53d.png) <br>
+    - 성공! ```entry -> d_reclen```으로 접근해 프로그램 코드에 적용 완료
   - 파일 크기를 fseek(), ftell()이 아닌 st_size로 구해 저장하도록 코드 수정
 
-* 백업파일을 따로 관리하는 디렉토리를 만드는 작업
+* **add 명령어**
+  - 스레드 생성하여줌. 스레드 간 공유되는 자원의 개수를 카운트하기 위해 선언한 전역변수 ```ncount```를 사용하여 add 명령어가 실행될 때마다 ncount++;를 하여 파일별로 각각의 스레드를 생성하여줌.
+  - add에서 생성된(```pthread_create()```) 스레드 식별자가 remove 명령어에서 종료될 때(```pthread_cancel()```)까지 스레드의 종료를 기다리도록 ncount만큼의 반복문 안에서 ```pthread_join()``` 처리를 해줌.
+  - [코드 참고](https://bitsoul.tistory.com/157)
+
+* **구현된 코드 디버깅**
+
+#### 0303 진행 계획
+* 백업이 진행될 때 백업파일은 별도의 디렉터리를 생성해 그 아래에서 관리할 수 있도록 ```thread_function```에서 백업을 진행할 때에는 백업된 파일 관리 전용 디렉터리에 파일 백업하도록 하는 부분 진행.
+* 기능 구현 대부분 완료. 명세 중 예외처리 조건 살펴보지 못한 부분 추가구현 뒤 마무리 된다면 디버깅하여 제대로 수행되도록 할 것.
 
