@@ -72,7 +72,7 @@ char *checkAccessDir(int argc, char **argv);
 void printPrompt (char *absPath);
 int calcFileCnt (LinkedList *linkedList);
 void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period);
-void removeFunc(LinkedList *linkedList, char *fileName);
+void removeFunc(LinkedList *linkedList, char *dirpath, char *fileName);
 void compareFunc(char *fileName1, char *fileName2);
 static size_t getFileSize(const char *fileName);
 void recoverFunc(LinkedList *linkedList, char *dirName, char *fileName);
