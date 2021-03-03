@@ -841,3 +841,25 @@ int lstat (const char *filename, struct stat *buf);
 * 백업이 진행될 때 백업파일은 별도의 디렉터리를 생성해 그 아래에서 관리할 수 있도록 ```thread_function```에서 백업을 진행할 때에는 백업된 파일 관리 전용 디렉터리에 파일 백업하도록 하는 부분 진행.
 * 기능 구현 대부분 완료. 명세 중 예외처리 조건 살펴보지 못한 부분 추가구현 뒤 마무리 된다면 디버깅하여 제대로 수행되도록 할 것.
 
+    ------
+### 21.03.03 (수) 프로젝트 진행 계획 및 보고
+
+#### 지난 시간 피드백
+* ncount의 전역변수로 자원이 할당된 스레드를 관리하였지만, 연결리스트 구조체의 파일 count 변수로 할당된 스레드를 구할 수도 있음.
+
+#### 진행 내용 및 학습 내용
+* mkdir() 함수를 사용해서 디렉토리를 생성하는 부분 모두 수정.
+  - [디렉토리 폴더 만들기](https://m.blog.naver.com/PostView.nhn?blogId=hts0128&logNo=90048315393&proxyReferer=https:%2F%2Fwww.google.com%2F)
+  - [참고2](https://devkyu.tistory.com/96)
+
+* **remove 명령어 예외처리부분 구현 완료**
+
+* **코드 error & warning 80% 해결**
+- ```function returns address of local variable``` : 해당 warning의 해결방법으로 checkAcessDir() 함수에서 변환된 절대경로를 static char변수로 선언해줌. 
+
+#### 추가적으로 더 구현해야하는 부분
+* recover 명령어에서 사용자가 선택한 순번의 백업파일의 내용을 fread(), fwirte()로 _ recover 파일에 저장하려면 파일의 크기를 알아야함. 이 때 선택한 파일을 stat함수를 통해 구조체에 접근할 수 있도록 한 뒤, 해당 파일의 ```st_size```만큼 fread 인자로 넘겨주기
+
+* 백업파일을 관리하는 디렉토리 만들어 그 안에서 관리하는 방법 아직 X -> 내일까지 꼭 공부하고 구현해놓기
+
+* recover할 때 백업시간 기준 오름차순으로 정렬되어 출력되게 하는 부분 구현 X, 디버깅 완료 후 실행해보며 추가하기
