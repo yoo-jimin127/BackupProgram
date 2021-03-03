@@ -80,6 +80,6 @@ void lsFunc();
 
 void write_log(char *msg);
 
-void *thread_function(void *addFile, int period);
+void *thread_function(void *addFile);
 
 

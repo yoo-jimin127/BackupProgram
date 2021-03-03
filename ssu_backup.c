@@ -183,7 +183,7 @@ void listFunc(LinkedList *linkedList) {
 
 //main에서 인자로 입력받은 절대경로의 접근 권한 확인 함수
 char *checkAccessDir(int argc, char **argv) {
-	char backupdir[256] = ""; //반환할 경로 저장할 배열
+	static char backupdir[256] = ""; //반환할 경로 저장할 배열
 	struct dirent *dir; //dirent 구조체
 	struct stat sb; //stat 구조체
 	DIR *dirptr = NULL; //dirent 포인터
@@ -355,7 +355,6 @@ void printPrompt (char *absPath) {
 
 		}
 	}
-
 }
 
 //연결리스트(백업리스트)에 저장되어있는 백업할 파일(노드)의 개수를 세는 함수
@@ -369,7 +368,7 @@ int calcFileCnt (LinkedList *linkedList) {
 	getcwd(buf, 300); // 현재 작업디렉터리의 이름 size만큼 buf에 복사
 
 	if ((dirptr = opendir(buf)) == NULL) {
-		fprintf("stderr", "opendir error\n");
+		fprintf(stderr, "opendir error\n");
 
 		return -1;
 	}
@@ -393,13 +392,14 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	int year, mon, day, hour, min, sec;
 
 	Node *newFile; //추가되는 노드
-	char thread_name[] = fileName; //파일명으로 스레드 이름을 저장해둠
+	char *thread_name; //파일명으로 스레드 이름을 저장해둠
 	int thr_id; //pthread_create() 리턴값 저장 변수
 	int status; 
 	int a =100;
 
 	char *fulltime = (char *)malloc(sizeof(char) * 100);
 
+	strcpy(thread_name, fileName);
 	memset(logmsg, 0, 1024);
 	timer = time(NULL);
 	loctm = localtime(&timer);
@@ -423,9 +423,9 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	addFileToList(dirPath, newFile);
 
 	//노드 구조체 멤버 값 설정
-	newFile -> absPath = dirPath;
-	newFile -> fileName = fileName;
-	newFile -> filePeriod = period;
+	strcpy(newFile -> absPath, dirPath);
+	strcpy(newFile -> fileName, fileName);
+	newFile -> filePeriod =  period;
 
 	//스레드 생성부
 	thr_id = pthread_create(&p_thread[ncount], NULL, thread_function, (void *)thread_name);
@@ -436,10 +436,10 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 
 	newFile -> tid = &p_thread[ncount]; //구조체의 스레드 식별자 변수에 생성된 스레드 식별자 저장
 	
-	thread_function((void *)thread_name, period); //add()함수에서도 스레드에서 돌아가고 있는 동일한 함수 실행
+	thread_function((void *)thread_name); //add()함수에서도 스레드에서 돌아가고 있는 동일한 함수 실행
 
 	for (int i = 0; i < ncount; i++) {
-		ptread_join(p_thread[i], (void **)&status); //스레드의 종료를 기다림
+		pthread_join(p_thread[i], (void **)&status); //스레드의 종료를 기다림
 	}
 
 	ncount++; //전역변수로 설정된 스레드 식별자 선언 개수를 +1
@@ -471,7 +471,17 @@ void removeFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	fulltime = (char *)malloc(sizeof(char) * 100);
 	//abspath = (char *)malloc(sizeof(char) * 256);
 
+	if (fileName == NULL) { //FILENAME을 입력하지 않은 경우
+		printf("파일명을 입력하세요.\n");
+		exit(0);
+	}
+
 	removeFile = findNode(linkedList, fileName); //연결리스트에서 파일명의 노드를 찾아 리턴받음
+	
+	if (removeFile == NULL) { //백업 중단할 파일이 리스트에 존재하지 않는 경우
+		printf("백업을 중단할 파일이 백업 리스트에 존재하지 않습니다.\n");
+		exit(0);
+	}
 
 	timer = time(NULL);
 	loctm = localtime(&timer);
@@ -487,7 +497,7 @@ void removeFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 
 			memset(cmp_fileName, 0, 256);//파일 순회마다 cmp_fileName초기화
 
-			if ((cmp_fileName = strstr(entry->d_name, fileName)) != NULL) {
+			if (strstr(entry->d_name, fileName) != NULL) {
 				removeNode(linkedList, entry->d_name); //백업파일을 모두 삭제
 				removeFileCnt++;
 
@@ -507,7 +517,7 @@ void removeFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		
 		//파일 삭제 수행을 성공적으로 완료하면 deleted로그 작성
 		sprintf(fulltime, "[%d%d%d %d%d%d] ", year, mon, day, hour, min, sec);
-		sprintf(logmsg, "%s %s%s deleted\n", fulltime, abspath, fileName);
+		sprintf(logmsg, "%s %s%s deleted\n", fulltime, dirPath, fileName);
 		write_log(logmsg);
 	}
 
@@ -535,38 +545,38 @@ void compareFunc(char *fileName1, char *fileName2) {
 	mtime1 = ctime(&buf1.st_mtime); //fileName1의 mtime 측정
 	mtime2 = ctime(&buf2.st_mtime); //fileName2의 mtime 측정
 
-	size1 = getFileSize(fileName1);
-	size2 = getFileSize(fileName2);
+	//size1 = getFileSize(fileName1);
+	//size2 = getFileSize(fileName2);
 
-	//file not exist
+	//파일이 존재하지 않을 경우
 	if (!(file1 = fopen(fileName1, "r")) && !(file2 = fopen(fileName2, "r"))) {
 		fclose(file1);
 		fclose(file2);
 
-		printf("file not exist.\n");
+		printf("입력한 파일이 존재하지 않습니다.\n");
 		exit(1);
 	}
 
-	//not general file
+	//일반 파일이 아닌 경우
 	if (!S_ISREG(buf1.st_mode) && !S_ISREG(buf2.st_mode)) {
-		printf("file is not regular file.\n");
+		printf("일반 파일이 아닙니다.\n");
 		exit(1);
 	}
 
 	//mtime과 파일크기 비교
 	if (strcmp(mtime1, mtime2) == 0) {
-		if (size1 == size2) {
-			printf("fileName1 == fileName2 \n");
+		if (buf1.st_size == buf2.st_size) {
+			printf("FILENAME1과 FILENAME2은 동일한 파일입니다.\n");
 		}
 
 		else {
-			printf("fileName1 -> mtime : %s , file size : %d \n", mtime1, size1);
-			printf("fileName2 -> mtime : %s , file size : %d \n", mtime2, size2);
+			printf("FILENAME1 -> mtime : %s , 파일크기 : %d \n", mtime1, (int)(buf1.st_size));
+			printf("FILENAME2 -> mtime : %s , 파일크기 : %d \n", mtime2, (int)(buf2.st_size));
 		}
 	}
 }
 
-//get file size (for 'compare' func)
+//파일 크기를 가져오기 위한 함수 (compare) 명령어에서 사용
 static size_t getFileSize(const char *fileName) {
 	struct stat sb;
 
@@ -590,7 +600,7 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	FILE *dest = NULL; //붙여넣기할 파일 포인터
 
 	int rcvFileCnt = 0;//recover 파일 카운터 변수
-	char cmp_fileName[256] = ""; //strstr() 리턴 값 저장 위한 배열
+	char *cmp_fileName; //strstr() 리턴 값 저장 위한 배열
 	char tmpmem[400] = ""; //2차원 포인터에 저장할 값을 임의로 담아두는 배열
 	char backuptime[13]; //파일 백업 수행시간만 분리해 저장하는 배열
 	char fileSize[100] ="";//파일의 크기 저장을 위한 배열
@@ -600,9 +610,18 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	struct tm *loctm;
 	time_t timer;
 	int year, mon, day, hour, min, sec;
-	int backupFileCnt = 0; //backup file count
-	int userChoise = 0;
+	int backupFileCnt = 0; //백업된 파일의 개수
+	int userChoice = 0;
 	//char logmsg[1024] = "";
+
+	Node *recoverFile; //복구할 파일의 정보를 가져오기 위한 구조체
+	recoverFile = (Node *)malloc(sizeof(Node)); //recoverFile 노드 동적할당
+	recoverFile = findNode(linkedList, fileName); //입력받은 노드의 존재여부 확인
+	
+	if (recoverFile == NULL) { //변경할 파일이 존재하지 않는 경우
+		printf("변경할 파일이 존재하지 않습니다.\n");
+		exit(1);
+	}
 
 	char *fulltime = (char *)malloc(sizeof(char)*100);
 	char *recovertime = (char *)malloc(sizeof(char)*100); // 백업 수행시간을 정렬하기 위해
@@ -629,7 +648,7 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		while(entry = readdir(dirptr) != NULL) {//파일 개수 카운트를 위한 반복문
 			memset(cmp_fileName, 0, 256);//cmp_fileName 수행시마다 배열 초기화
 
-			if ((cmp_fileName = strstr(entry->d_name, fileName)) != NULL) {
+			if ((cmp_fileName = strstr(entry->d_name, recoverFile -> fileName)) != NULL) {
 				rcvFileCnt++; //사용자가 입력한 파일의 백업본 개수 카운트
 			}	
 		}
@@ -640,7 +659,7 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 			rcvFileList[i] = (char*)malloc(sizeof(char) * 400);
 		}
 
-		while(entry = readdir(dirptr) != NULL) {//출력 내용 저장을 위한 반복문
+		while((entry = readdir(dirptr)) != NULL) {//출력 내용 저장을 위한 반복문
 			memset(cmp_fileName, 0, 256);
 			memset(backuptime, 0, 13);
 			memset(tmpmem, 0, 400);
@@ -649,7 +668,7 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 			int i = 1; // 0 : exit
 			int nameptr = 0; //백업수행시간의 포인터를 가져오기위한 변수
 
-			if ((cmp_fileName = strstr(entry -> d_name, fileName)) != NULL) {
+			if ((cmp_fileName = strstr(entry -> d_name, recoverFile -> fileName)) != NULL) {
 				stat(entry -> d_name, &tmpsb);
 				size = tmpsb.st_size; //파일 크기 저장
 			
@@ -693,14 +712,20 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		else if (userChoice == i) {
 			//선택한 파일으로 fileName_recover 파일 복구
 			char *recovered;
+			char *tmprcv1; //사용자가 선택한 파일명에 접근하기 위해 사용되는 임시 배열
+			char *tmprcv2;
+
 			char *buffer; //파일의 내용을 읽어와 쓰는 과정 중 잠시 사용되는 버퍼
 			int cnt = 0;
-			sprintf(recovered, "%s_recover.txt", fileName); //수정할 것
+			pthread_cancel(recoverFile -> tid); //백업수행 종료 후 복구 진행을 위해 백업수행 스레드 종료
+			
+			strcpy(tmprcv1,rcvFileList[i]); //사용자가 선택한 파일의 내용을 저장해둠
+			sprintf(recovered, "%s_recover.txt", fileName); //수정할 것 
 
 			src = fopen(entry -> d_name, "r"); //선택한 파일로 접근하도록 수정할 것(dirent)
 			dest = fopen(recovered, "w+");
 
-			while (feop(src) == 0) {
+			while (feof(src) == 0) {
 				cnt = fread(buffer, sizeof(char), strlen(/*사용자가 선택한 파일 크기 = 1 (\0 제외)*/), src);
 				fwrite(buffer, sizeof(char), cnt, dest); //읽어온 내용 recover파일에 붙여넣기
 			}
@@ -734,7 +759,7 @@ void lsFunc() {
 		printf("%s\t", dir->d_name);
 	}
 
-	close(dirptr); 
+	closedir(dirptr); 
 }
 
 //============================= << logfile.log >> ================================
@@ -745,14 +770,14 @@ void write_log(char *msg) {
 	fptr = fopen("logfile.log", "w");
 
 	if (fptr != NULL) {
-		fprintf(fptr, logMsg);
+		fprintf(fptr, "%s\n", logMsg);
 	}
 
 	fclose(fptr);
 }
 
 //=========================== << pthread function >> ===================================
-void *thread_function (void *addFile, int period) {
+void *thread_function (void *addFile) {
 	Node *newNode = (Node *)addFile;
 
 	struct stat statbuffer;//stat구조체
@@ -788,17 +813,23 @@ void *thread_function (void *addFile, int period) {
 	newNode -> tid = tid; 
 	//newNode -> filePeriod = period;
 	//newNode -> fileName = addFile;
+	 
+	int dirResult = mkdir("generatedPath", 0755); // 백업이 진행된 파일들을 저장할 디렉토리 생성
+	if (dirResult != 0) {
+		printf("mkdir error\n");
+		exit(1);
+	}
 
 	fulltime = (char *)malloc(sizeof(char) *100);
 
 	if ((timer = time(NULL)) == -1) { //초 단위로
 		perror("time() call error");
-		return;
+		exit(1);
 	}
 
 	if ((loctm = localtime(&timer)) == NULL) { //시간을 분리하여 tm 구조체에 넣음
 		perror("localtime() call error");
-		return;
+		exit(1);
 	}
 
 	memset(logmsg, 0, 1024);
@@ -853,11 +884,6 @@ void *thread_function (void *addFile, int period) {
 
 		sprintf(logmsg, "%s %s generated", fulltime, fullFilePath);
 		write_log(logmsg); //백업 후 로그 작성
-
-
-		if (/*pthread_exit() 만난 경우*/) {
-
-		}
 	}
 
 	fclose(addfptr);
