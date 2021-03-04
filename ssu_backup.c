@@ -177,6 +177,8 @@ void listFunc(LinkedList *linkedList) {
 
 		curr = curr -> next;
 	}
+
+	return;
 }
 
 //================================디렉토리 관련 함수 정의부===================================
@@ -242,7 +244,7 @@ char *checkAccessDir(int argc, char **argv) {
 //'학번>' 프롬프트를 출력하는 함수
 void printPrompt (char *absPath) {
 	char userInput[300] = ""; // 사용자로부터 명령어와 filename, period를 입력받기 위한 문자열배열
-	char *filePath; // 파일의 절대경로 저장 배열
+	char *fileName; // 파일의 절대경로 저장 배열
 	int period; //파일의 백업주기 저장 변수
 	LinkedList linkedList;
 	//BackupContentList backupContentList;
@@ -262,31 +264,33 @@ void printPrompt (char *absPath) {
 		while (order != NULL) {
 
 			//add <파일명> [백업주기]
-			if (!strcpy(order, "add")) {
-				filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+			if (strcmp(order, "add") == 0) {
+				fileName = strtok(NULL, " "); //다음 문자열 잘라 fileName에 저장
 				period = atoi(strtok(NULL, " ")); // 다음 문자열 잘라 chPeriod에 저장
 
 				//add 기능 담당하는 함수에 filepath와 period 인자로 넘겨주기
+				addFunc(&linkedList, absPath, fileName, period); 
 			}
 
 			//remove <파일명>
-			else if (!strcpy(order, "remove")) {
-				filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+			else if (strcmp(order, "remove") == 0) {
+				fileName = strtok(NULL, " "); //다음 문자열 잘라 fileName에 저장
 
 				//remove 기능 담당하는 함수에 filepath 넘기기
+				removeFunc(&linkedList, absPath, fileName);
 			}
 
 			//compare <파일명1> <파일명2>
-			else if (!strcpy(order, "compare")) {
+			else if (strcmp(order, "compare") == 0) {
 				int paramCnt = 0; //fileName1, fileName2 
 
-				filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
-				if (strlen(filePath) != 0) {
+				fileName = strtok(NULL, " "); //다음 문자열 잘라 fileName에 저장
+				if (strlen(fileName) != 0) {
 					paramCnt++;
 				}
 
-				char *filePath2 = strtok(NULL, " "); // 다음 문자열 잘라 filePath2에 저장
-				if (strlen(filePath) != 0) {
+				char *fileName2 = strtok(NULL, " "); // 다음 문자열 잘라 fileName2에 저장
+				if (strlen(fileName2) != 0) {
 					paramCnt++;
 				}
 
@@ -296,61 +300,65 @@ void printPrompt (char *absPath) {
 				}
 
 				//compare 기능 담당하는 함수에 filePath, filePath2 넘기기
-				//compareFunc(filePath, filePath2);
+				compareFunc(fileName, fileName2);
 			}
 
 			//recover <파일명>
-			else if (!strcpy(order, "recover")) {
-				filePath = strtok(NULL, " "); //다음 문자열 잘라 filePath에 저장
+			else if (strcmp(order, "recover") == 0) {
+				fileName = strtok(NULL, " "); //다음 문자열 잘라 fileName에 저장
 
 				//recover 기능 담당하는 함수에 filePath 넘기기
+				recoverFunc(&linkedList, absPath, fileName);
 			}
 
 			//list 명령어
-			else if (!strcmp(order, "list")) {
+			else if (strcmp(order, "list") == 0) {
 
-				//listFunc(LinkedList);
+				listFunc(&linkedList);
 			}
 
 			//ls 명령어
-			else if (!strcmp(order, "ls")) {
+			else if (strcmp(order, "ls") == 0) {
 				/*char *dirpath = strtok(NULL, " "); //next token
 				  char *lsOrder = "ls ";
 
 				  strcat(lsOrder, dirpath); //ls dirname
 				  system(lsOrder);*/
 				system(userInput);
+				exit(0);
 			}
 
 			//vi 명령어
-			else if (!strcmp(order, "vi")) {
+			else if (strcmp(order, "vi") == 0) {
 				/*char *dirpath = strtok(NULL, " "); //next token
 				  char *viOrder = "vi ";
 
 				  strcat(viOrder, dirpath);
 				  system(viOrder);*/
 				system(userInput);
+				exit(0);
 			}
 
 			//vim 명령어
-			else if (!strcmp(order, "vim")) {
+			else if (strcmp(order, "vim") == 0) {
 				/*char *dirpath = strtok(NULL, " "); //next token
 				  char *vimOrder = "vim ";
 
 				  strcat(vimOrder, dirpath);
 				  system(vimOrder);*/
 				system(userInput);
+				exit(0);
 			}
 
 			//exit 명령어
-			else if (!strcmp (order, "exit")) {
+			else if (strcmp (order, "exit") == 0) {
 				exit(0);
 				return;
 			}
 
 			//another order
 			else {
-				printf("input value is not exist.\n");
+				printf("입력한 명령어가 존재하지 않습니다.\n");
 			}
 
 		}
@@ -712,30 +720,40 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		else if (userChoice == i) {
 			//선택한 파일으로 fileName_recover 파일 복구
 			char *recovered;
-			char *tmprcv1; //사용자가 선택한 파일명에 접근하기 위해 사용되는 임시 배열
-			char *tmprcv2;
+			//char *tmprcv1; //사용자가 선택한 파일명에 접근하기 위해 사용되는 임시 배열
+			//char *tmprcv2;
 
 			char *buffer; //파일의 내용을 읽어와 쓰는 과정 중 잠시 사용되는 버퍼
-			int cnt = 0;
+			int cnt = 1; 
 			pthread_cancel(recoverFile -> tid); //백업수행 종료 후 복구 진행을 위해 백업수행 스레드 종료
-			
+			while ((entry = readdir(dirptr)) != NULL) { //찾는 파일을 가져옴
+				if (cnt == i) { //사용자가 입력한 순번과 순서대로 파일을 읽어들이는 파일 개수가 일치할 경우 
+					sprintf(recovered, "%s_recover", recoverFile -> fileName);
+					strcpy(entry->d_name, recovered);
+					break;
+				}
+
+				cnt++; //파일을 하나씩 읽을 때마다 카운트 수 +1
+			}
+
+			/*
 			strcpy(tmprcv1,rcvFileList[i]); //사용자가 선택한 파일의 내용을 저장해둠
-			sprintf(recovered, "%s_recover.txt", fileName); //수정할 것 
+			sprintf(recovered, "%s_recover.txt", fileName); //수정할 것
 
 			src = fopen(entry -> d_name, "r"); //선택한 파일로 접근하도록 수정할 것(dirent)
 			dest = fopen(recovered, "w+");
 
 			while (feof(src) == 0) {
-				cnt = fread(buffer, sizeof(char), strlen(/*사용자가 선택한 파일 크기 = 1 (\0 제외)*/), src);
+				cnt = fread(buffer, sizeof(char), strlen(), src);
 				fwrite(buffer, sizeof(char), cnt, dest); //읽어온 내용 recover파일에 붙여넣기
 			}
-
+			*/
 		}
 	}
-
+	
 	fclose(fptr);
-	fclose(src);
-	fclose(dest);
+	//fclose(src);
+	//fclose(dest);
 	closedir(dirptr);
 }
 
