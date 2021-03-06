@@ -895,4 +895,8 @@ int lstat (const char *filename, struct stat *buf);
 * **add 명령어** : 명령어 입력 시 period 입력하지 않은 경우 처리해주도록 코드 수정
 * **remove 명령어** : 파일 삭제 및 스레드 중지 부분 디버깅
 * **list 명령어** : backupList.list의 내용들을 읽어오도록 코드 수정
-* **compare 명령어** : 정상적으로 수행됨, 기능 
+* **compare 명령어** : 정상적으로 수행됨, 기능 구현 완료
+  - ![image](https://user-images.githubusercontent.com/66112716/110207651-47514700-7ec8-11eb-81d0-b2dc9ab5e559.png)
+* **모든 명령어** : exit 명령어를 제외하고 나서는 에러/명령어 수행 후 프롬프트로 제어를 넘기도록 수정함. <br>
+  -> 프로그램 종료는 exit 명령하여야만 가능하도록.
+  ![image](https://user-images.githubusercontent.com/66112716/110210746-7c649600-7ed6-11eb-8820-1a83411d69c4.png)
