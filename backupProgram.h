@@ -9,16 +9,9 @@
 
 #define MAX_SIZE 99999
 
-/*
-typedef struct fileInfo {
-   char absPath[256]; // 파일의 절대경로를 저장하기 위한 문자열 배열
-   int filePeriod; // 해당 파일의 백업 주기
-//char fileOption[30]; //파일의 백업 옵션
-}FileInfo; */
-
 //파일명으로 연결된 리스트의 노드
 typedef struct node {
-    char absPath[256];
+    char absPath[256]; //백업 디렉토리
     char fileName[256]; // 명세 : 백업할 파일명 길이 제한 255bytes
     int filePeriod; // 해당 파일의 백업 주기
 
@@ -29,21 +22,6 @@ typedef struct node {
     struct node *prev;
 }Node;
 
-/*
-typedef struct backupNode {
-    pid_t pid;
-    pthread_t tid;
-    char fileName[256];
-    int period;
-    int backup_time;
-    int file_size;
-    char file_content[MAX_SIZE];
-
-    struct backupNode *next;
-    struct backupNode *prev;
-}BackupNode;
-*/
-
 //백업할 파일들을 연결해놓은 이중 연결리스트 (백업리스트)
 typedef struct linkedList {
     Node *head; //연결리스트의 head 노드
@@ -51,13 +29,6 @@ typedef struct linkedList {
     int fileCnt; //백업할 파일들의 개수를 세기위한 카운트
 }LinkedList;
 
-/*
-typedef struct backupContentList {
-    BackupNode *head;
-    BackupNode *tail;
-    int backup_perform_cnt;
-}BackupContentList;
-*/
 
 //================================함수 선언부=======================================
 void initList (LinkedList *linkedList);
@@ -81,5 +52,6 @@ void lsFunc();
 void write_log(char *msg);
 
 void *thread_function(void *addFile);
+char*makeJustFile(char *filename);
 
 
