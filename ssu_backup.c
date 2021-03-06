@@ -1,6 +1,7 @@
 #include "backupProgram.h"
 
-#define MAX_SIZE 99999 // to store file content
+#define MAX_SIZE 999 
+
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; //쓰레드 초기화
 int ncount; //쓰레드간 공유되는 자원
 int result; // pthread_join시 return값 저장하는 변수
@@ -112,24 +113,24 @@ void addFileToList (char *dirName, Node *node) {
 	FILE *fptr;
 
 	fptr = fopen("backupList.list", "a");
-	fprintf(fptr, "%s\n", node -> fileName);
+	fprintf(fptr, "%s\t\t%d\n", node -> fileName, node -> filePeriod);
 
 	fclose(fptr);
 }
 
 // list 기능을 위해 모든 백업 리스트를 출력하는 함수
 void listFunc(LinkedList *linkedList) {
-	Node *curr;
+	FILE *fptr = NULL;
 
-	curr = linkedList -> head -> next; //curr 노드 초기화
+	fptr = fopen("backupList.list", "r");
 
-	while (curr -> next != NULL) {
-		printf("%s \t %d\n", curr -> fileName, curr -> filePeriod);
-
-		curr = curr -> next;
+	while(feof(fptr) == 0) {
+		char buf[MAX_SIZE];
+		fgets(buf, MAX_SIZE, fptr);
+		printf("%s", buf);
 	}
 
-	return;
+	fclose(fptr);
 }
 
 //================================디렉토리 관련 함수 정의부===================================
@@ -198,17 +199,16 @@ void printPrompt (char *absPath) {
 	char fileName[256]; // 파일의 절대경로 저장 배열
 	char fileName2[256];
 	char *token;
-	int period; //파일의 백업주기 저장 변수
+	int period = 0; //파일의 백업주기 저장 변수
 	LinkedList linkedList;
-	//BackupContentList backupContentList;
 
 	initList(&linkedList);
-	//initList(&backupContentList);
 
 	while(1) {
 		memset(userInput, 0, 300);
 		memset(fileName, 0, 256);
-
+		int tmpPeriod = 0;
+		
 		printf("20193017>");
 		fgets(userInput, 256, stdin);
 
@@ -222,11 +222,11 @@ void printPrompt (char *absPath) {
 			//add <파일명> [백업주기]
 			if (strcmp(order, "add") == 0) {
 				token = strtok(NULL, " "); //다음 문자열 잘라 fileName에 저장
-				int tmpPeriod = atoi(strtok(NULL, " ")); // 다음 문자열 잘라 chPeriod에 저장
+				tmpPeriod = atoi(strtok(NULL, " ")); // 다음 문자열 잘라 chPeriod에 저장
 
 				strcpy(fileName, token);
 
-				if (tmpPeriod == NULL) {
+				if (tmpPeriod == 0) {
 					printf("period를 입력하세요.\n");
 					break;
 				}
@@ -272,6 +272,7 @@ void printPrompt (char *absPath) {
 
 				//compare 기능 담당하는 함수에 filePath, filePath2 넘기기
 				compareFunc(fileName, fileName2);
+				break;
 			}
 
 			//recover <파일명>
@@ -281,30 +282,31 @@ void printPrompt (char *absPath) {
 
 				//recover 기능 담당하는 함수에 filePath 넘기기
 				recoverFunc(&linkedList, absPath, fileName);
+				break;
 			}
 
 			//list 명령어
 			else if (strcmp(order, "list") == 0) {
-
 				listFunc(&linkedList);
+				break;
 			}
 
 			//ls 명령어
 			else if (strcmp(order, "ls") == 0) {
 				system(userInput);
-				exit(0);
+				break;
 			}
 
 			//vi 명령어
 			else if (strcmp(order, "vi") == 0) {
 				system(userInput);
-				exit(0);
+				break;
 			}
 
 			//vim 명령어
 			else if (strcmp(order, "vim") == 0) {
 				system(userInput);
-				exit(0);
+				break;
 			}
 
 			//exit 명령어
@@ -316,6 +318,7 @@ void printPrompt (char *absPath) {
 			//존재하지 않는 명령어 입력할 경우
 			else {
 				printf("입력한 명령어가 존재하지 않습니다.\n");
+				break;
 			}
 
 		}
@@ -386,9 +389,6 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	addFileToList(dirPath, newFile);
 
 	//스레드 생성부
-	//pthread_create(&tid, NULL, thread_function, (void *)newFile);
-
-	//pthread_detach(tid);
 	if(pthread_create(&tid, NULL, thread_function, (void *)newFile) != 0){ //쓰레드 생성
 		fprintf(stderr, "pthread_create error\n");
 		exit(1);
@@ -514,12 +514,12 @@ void compareFunc(char *fileName1, char *fileName2) {
 	//mtime과 파일크기 비교
 	if (strcmp(mtime1, mtime2) == 0) {
 		if (buf1.st_size == buf2.st_size) {
-			printf("FILENAME1과 FILENAME2은 동일한 파일입니다.\n");
+			printf("%s과 %s은 동일한 파일입니다.\n", fileName1, fileName2);
 		}
 
 		else {
-			printf("FILENAME1 -> mtime : %s , 파일크기 : %d \n", mtime1, (int)(buf1.st_size));
-			printf("FILENAME2 -> mtime : %s , 파일크기 : %d \n", mtime2, (int)(buf2.st_size));
+			printf("FILENAME1 -> mtime : %sFILENAME1 -> 파일크기 : %d \n", mtime1, (int)(buf1.st_size));
+			printf("FILENAME2 -> mtime : %sFILENAME2 ->  파일크기 : %d \n\n", mtime2, (int)(buf2.st_size));
 		}
 	}
 }
@@ -831,7 +831,6 @@ void *thread_function (void *addFile) {
 		sprintf(fulltime, "[%d%d%d %d%d%d] ", year, mon, day, hour, min, sec); //fulltime 저장
 		justFileName = makeJustFile(newNode -> fileName);
 		sprintf(backupFile, "%s/%s_%d%d%d%d%d%d", newNode -> absPath, justFileName, year, mon, day, hour, min, sec); //백업된 파일 만드는 부분
-		printf("%s\n", backupFile);
 
 		backupfptr = fopen(backupFile, "w+"); //파일이 존재하지 않을 경우 빈 파일을 새로 생성(백업할 파일)
 		if (backupfptr == NULL) {
