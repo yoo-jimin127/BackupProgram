@@ -891,7 +891,7 @@ int lstat (const char *filename, struct stat *buf);
     - findNode에 addFile을 인자로 넘겨 연결리스트에서 찾은 파일을 newNode에 저장해주는 방법으로 접근 (thread_function의 인자와 addFunc에서의 스레드 함수 호출부를 수정)
 
     ------
-### 21.03.05 (금) 프로젝트 진행 계획 및 보고
+### 21.03.06 (토) 프로젝트 진행 계획 및 보고
 * **add 명령어** : 명령어 입력 시 period 입력하지 않은 경우 처리해주도록 코드 수정
 * **remove 명령어** : 파일 삭제 및 스레드 중지 부분 디버깅
 * **list 명령어** : backupList.list의 내용들을 읽어오도록 코드 수정
@@ -901,3 +901,9 @@ int lstat (const char *filename, struct stat *buf);
 * **모든 명령어** : exit 명령어를 제외하고 나서는 에러/명령어 수행 후 프롬프트로 제어를 넘기도록 수정함. <br>
   -> 프로그램 종료는 exit 명령하여야만 가능하도록.
   - ![image](https://user-images.githubusercontent.com/66112716/110210746-7c649600-7ed6-11eb-8820-1a83411d69c4.png)
+
+    ------
+### 21.03.07 (일) 프로젝트 진행 계획 및 보고
+* localtime() 함수를 사용하여 tm 구조체의 변수를 통해 년월일 시분초 형식에 맞게 출력
+* logfile 작성 문제 해결 -> fopen() 모드를 다르게 해주어 로그가 수행시간 순으로 누적 작성되도록 함
+  - ![image](https://user-images.githubusercontent.com/66112716/110214702-31a04980-7ee9-11eb-95d2-ad013d4c19da.png)
