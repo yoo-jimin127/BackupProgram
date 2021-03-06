@@ -904,6 +904,8 @@ int lstat (const char *filename, struct stat *buf);
 
     ------
 ### 21.03.07 (일) 프로젝트 진행 계획 및 보고
-* localtime() 함수를 사용하여 tm 구조체의 변수를 통해 년월일 시분초 형식에 맞게 출력
-* logfile 작성 문제 해결 -> fopen() 모드를 다르게 해주어 로그가 수행시간 순으로 누적 작성되도록 함
+* **백업 시간 & 수행 시간** : localtime() 함수를 사용하여 tm 구조체의 변수를 통해 년월일 시분초 형식에 맞게 출력
+* **logfile 작성** 문제 해결 -> fopen() 모드를 다르게 해주어 로그가 수행시간 순으로 누적 작성되도록 함
   - ![image](https://user-images.githubusercontent.com/66112716/110214702-31a04980-7ee9-11eb-95d2-ad013d4c19da.png)
+* **remove 명령어** : 세그멘테이션 오류로 인해 removeFunc() 호출부와 구현부 디버깅 중
+  - 배열과 포인터 사용부분을 모두 수정해보고 있지만 계속 코어덤프가 
