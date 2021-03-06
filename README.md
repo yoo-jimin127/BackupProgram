@@ -889,3 +889,10 @@ int lstat (const char *filename, struct stat *buf);
   
   - **add 명령어 부분** : 스레드 함수에서 실행되는 ```void *addFile```을 노드로 만들어 해당 파일명을 fopen()하는 부분에서 fopen() 오류 발생하여 수정 중. <br>
     - findNode에 addFile을 인자로 넘겨 연결리스트에서 찾은 파일을 newNode에 저장해주는 방법으로 접근 (thread_function의 인자와 addFunc에서의 스레드 함수 호출부를 수정)
+
+    ------
+### 21.03.05 (금) 프로젝트 진행 계획 및 보고
+* **add 명령어** : 명령어 입력 시 period 입력하지 않은 경우 처리해주도록 코드 수정
+* **remove 명령어** : 파일 삭제 및 스레드 중지 부분 디버깅
+* **list 명령어** : backupList.list의 내용들을 읽어오도록 코드 수정
+* **compare 명령어** : 정상적으로 수행됨, 기능 
