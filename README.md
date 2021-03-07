@@ -908,4 +908,7 @@ int lstat (const char *filename, struct stat *buf);
 * **logfile 작성** 문제 해결 -> fopen() 모드를 다르게 해주어 로그가 수행시간 순으로 누적 작성되도록 함
   - ![image](https://user-images.githubusercontent.com/66112716/110214702-31a04980-7ee9-11eb-95d2-ad013d4c19da.png)
 * **remove 명령어** : 세그멘테이션 오류로 인해 removeFunc() 호출부와 구현부 디버깅 중
-  - 배열과 포인터 사용부분을 모두 수정해보고 있지만 계속 코어덤프가 
+  - 배열과 포인터 사용부분을 모두 수정해보고 있지만 계속 코어덤프가 발생함.
+  - pthread_cancel() 주석하여도 코어덤프...
+* **recover 명령어** : 인자로 입력받은 ```node -> fileName```을 findNode() 함수로 찾는 과정에서 오류가 발생한 것으로 예상됨. 
+  - findNode() 함수 문제 X, 라인별 디버깅 중.
