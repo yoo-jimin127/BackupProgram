@@ -922,6 +922,7 @@ int lstat (const char *filename, struct stat *buf);
 * **remove 명령어** : 명령어 기능 구현 완료. 실행 정상적으로 되며 스레드가 종료되어 백업이 중지됨.
   ![image](https://user-images.githubusercontent.com/66112716/110336137-e8c2cf00-8067-11eb-8166-3484fa108e11.png)
 * **recover 명령어** : 함수 실행 자체가 되지 않고 코어덤프 발생. remove에서와 같은 로직으로 파일을 findNode()를 통해 찾아오지만 이 마저도 실행안됨. 라인 별 디버깅 중.
+  - rename() 함수 사용해 파일 관련 부분 재구현할 예정.
 
 #### 210309 진행 예정
 * recover 명령어 코어덤프만 해결하면 프로그램 구현 완료. 03/09에 구현 마무리할 예정!!
