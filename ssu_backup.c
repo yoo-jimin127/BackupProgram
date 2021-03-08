@@ -289,7 +289,11 @@ void printPrompt (char *absPath) {
 			strcpy(fileName, token);
 
 			//recover 기능 담당하는 함수에 filePath 넘기기
+			//printf("recover 함수 시작\n");
+
+			//printf("%s %s %s \n", order, absPath, fileName);
 			recoverFunc(&linkedList, absPath, fileName);
+			printf("recover 함수 종료\n");
 		//	break;
 		}
 
@@ -529,22 +533,29 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 
 	int rcvFileCnt = 0;//recover 파일 카운터 변수
 	char *cmp_fileName; //strstr() 리턴 값 저장 위한 배열
-	char tmpmem[400] = ""; //2차원 포인터에 저장할 값을 임의로 담아두는 배열
+	char tmpmem[400]; //2차원 포인터에 저장할 값을 임의로 담아두는 배열
+
+	char buf[256];
 	char backuptime[13]; //파일 백업 수행시간만 분리해 저장하는 배열
 	char fileSize[100] ="";//파일의 크기 저장을 위한 배열
+	char fullFileName[256];
 	int size = 0; //ftell() 함수의 리턴 값을 저장하는 변수
-	char **rcvFileList; //백업파일들을 담아놓기 위한 2차원 포인터
+	char rcvFileList[100][400]; //백업파일들을 담아놓기 위한 2차원 포인터
+
+	char fulltime[100];
+	char recovertime[100];
 
 	struct tm *loctm;
 	time_t timer;
-	int year, mon, day, hour, min, sec;
 	int backupFileCnt = 0; //백업된 파일의 개수
 	int userChoice = 0;
 
 	Node *recoverFile; //복구할 파일의 정보를 가져오기 위한 구조체
-	//recoverFile = (Node *)malloc(sizeof(Node)); //recoverFile 노드 동적할당
 
-	recoverFile = findNode(linkedList, fileName); //입력받은 노드의 존재여부 확인
+	getcwd(buf, 256);
+	sprintf(fullFileName, "%s/%s", buf, fileName);
+
+	recoverFile = findNode(linkedList, fullFileName); //입력받은 노드의 존재여부 확인
 	printf("recover File Name : %s\n", recoverFile -> fileName);
 
 	if (recoverFile == NULL) { //변경할 파일이 존재하지 않는 경우
@@ -554,22 +565,12 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 
 	printf("recover : %s\n", recoverFile -> fileName);
 
-	char *fulltime = (char *)malloc(sizeof(char)*100);
-	char *recovertime = (char *)malloc(sizeof(char)*100); // 백업 수행시간을 정렬하기 위해
+	//char *fulltime = (char *)malloc(sizeof(char)*100);
+	//char *recovertime = (char *)malloc(sizeof(char)*100); // 백업 수행시간을 정렬하기 위해
 
 	stat(recoverFile -> fileName, &sb); //파일 정보 저장
 
-	timer = time(NULL);
-	loctm = localtime(&timer);
-
-	year = loctm -> tm_year + 1900;
-	mon = loctm -> tm_mon +1;
-	day = loctm -> tm_mday;
-	hour = loctm -> tm_hour;
-	min = loctm -> tm_min;
-	sec = loctm -> tm_sec;
-
-	dirptr = opendir(dirPath);
+	dirptr = opendir(buf);//현재 작업 디렉토리 오픈
 	if (dirptr == NULL) {
 		printf("백업 디렉토리를 열 수 없습니다.\n");
 		exit(0);
@@ -584,11 +585,12 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 			}	
 		}
 
-		rcvFileList = (char**)malloc(sizeof(char *) * rcvFileCnt); //백업파일 개수만큼 동적할당
-
+		//rcvFileList = (char**)malloc(sizeof(char *) * rcvFileCnt); //백업파일 개수만큼 동적할당
+		
+		/*
 		for (int i = 0; i < rcvFileCnt; i++) {
 			rcvFileList[i] = (char*)malloc(sizeof(char) * 400);
-		}
+		}*/
 		
 		while((entry = readdir(dirptr)) != NULL) {//파일 개수 카운트를 위한 반복문
 			memset(cmp_fileName, 0, 256);
@@ -609,16 +611,11 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 				strcpy(backuptime, &(entry->d_name[nameptr]));//backuptime에 백업시간 저장
 
 				sprintf(tmpmem, "%d. %s \t %s", i, backuptime, fileSize);//순번, 백업시간, 파일 크기 저장
-				rcvFileList[i] = tmpmem;
+				strcpy(rcvFileList[i],tmpmem);
 				i++;
 			}
 
 		}
-
-		//sprintf(fulltime, "[%d%d%d %d%d%d] ", year, mon, day hour, min, sec);
-		//sprintf(recovertime, "%d%d%d%d%d%d", year, mon, day, hour, min, sec);
-		//sprintf(logmsg, "%s %s%s_%s generated", fulltime, dirName, fileName, recovertime);
-		//write_log(logmsg);
 
 	}
 
@@ -639,11 +636,11 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 
 		else if (userChoice == i) {
 			//선택한 파일으로 fileName_recover 파일 복구
-			char *recovered;
+			char recovered[256];
 			//char *tmprcv1; //사용자가 선택한 파일명에 접근하기 위해 사용되는 임시 배열
 			//char *tmprcv2;
 
-			char *buffer; //파일의 내용을 읽어와 쓰는 과정 중 잠시 사용되는 버퍼
+			char buffer[256]; //파일의 내용을 읽어와 쓰는 과정 중 잠시 사용되는 버퍼
 			int cnt = 1; 
 			pthread_cancel(recoverFile -> tid); //백업수행 종료 후 복구 진행을 위해 백업수행 스레드 종료
 			while ((entry = readdir(dirptr)) != NULL) { //찾는 파일을 가져옴
@@ -671,14 +668,15 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		}
 	}
 
-	fclose(fptr);
+	//fclose(fptr);
 	//fclose(src);
 	//fclose(dest);
-	closedir(dirptr);
+	//closedir(dirptr);
+	
 }
 
 
-//ls function
+//ls 명령어
 void lsFunc() {
 	DIR *dirptr = NULL;
 	struct dirent *dir = NULL;
@@ -700,7 +698,7 @@ void lsFunc() {
 	closedir(dirptr); 
 }
 
-//============================= << logfile.log >> ================================
+//============================= 로그파일 작성 함수 ================================
 void write_log(char *msg) {
 	FILE *fptr;
 	char logMsg[1024];
@@ -714,7 +712,7 @@ void write_log(char *msg) {
 	fclose(fptr);
 }
 
-//=========================== << pthread function >> ===================================
+//=========================== 스레드 관련 함수  ===================================
 void *thread_function (void *addFile) {
 	Node *newNode;
 	newNode = (Node *)addFile;
