@@ -16,6 +16,8 @@ int main (int argc, char* argv[]) {
 	backupdir = (char *)malloc(sizeof(char) * 256); //절대경로 저장을 위해 메모리 동적할당
 
 	//main 함수 : 입력받은 경로 존재, 접근 여부 확인 (별도 함수로 처리)
+
+	//printf("%d, %s, %s\n", argc, argv[1], argv[2]);
 	backupdir = checkAccessDir(argc, argv);
 
 	//제대로 열 수 있으면 경로 프롬프트 실행 함수에 넘겨 백업 프로그램 시작
@@ -156,7 +158,7 @@ char *checkAccessDir(int argc, char **argv) {
 		if (access(tmpdir, mode) == 0) {
 			sprintf(backupdir,"%s/backup_directory", tmpdir); //백업디렉토리 명까지 backupdir에 저장
 			mkdir(backupdir, 0775); //백업디렉토리 생성
-
+			printf("backupdir : %s\n", backupdir);
 			return backupdir; // 접근권한 있으면 backupdir 리턴
 		}
 
@@ -246,10 +248,12 @@ void printPrompt (char *absPath) {
 				token = strtok(NULL, " "); //다음 문자열 잘라 fileName에 저장
 
 				strcpy(fileName, token);
-			//	printf("%s %s\n", absPath, fileName);
 			
 				//remove 기능 담당하는 함수에 filepath 넘기기
+				//printf("1\n");
+				//printf("order : %s, fileName : %s, absPath ; %s\n", order, fileName, absPath);
 				removeFunc(&linkedList, absPath, fileName);
+				printf("2\n");
 				break;
 			}
 
@@ -402,13 +406,15 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 
 //remove 기능을 수행하는 함수
 void removeFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
+	//printf("1\n");
 	Node *removeFile;
 
 	//pthread_t rm_thread; //삭제할 스레드 식별자
-	FILE *fptr;
-	DIR *dirptr;//dirent구조체 포인터
+	FILE *fptr = NULL;
+	DIR *dirptr = NULL;//dirent구조체 포인터
 	struct dirent *entry = NULL;//dirent구조체
-	//char cmp_fileName[256] =""; //strstr()의 리턴 값을 저장할 배열
+	char fullFileName[256]; 
+	char buf[256];
 	int removeFileCnt = 0; //백업디렉토리에서 삭제할 파일의 수 카운트
 	//static int retval = 999; //스레드 종료 시 반환 값 설정을 위한 변수
 
@@ -430,7 +436,12 @@ void removeFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		exit(0);
 	}
 
-	removeFile = findNode(linkedList, fileName); //연결리스트에서 파일명의 노드를 찾아 리턴받음
+	getcwd(buf, 256);
+	sprintf(fullFileName, "%s/%s", buf, fileName);
+	//printf("fullFileName : %s\n", fullFileName);
+	
+	removeFile = findNode(linkedList, fullFileName); //연결리스트에서 파일명의 노드를 찾아 리턴받음
+
 	printf("리무브 : %s\n", removeFile -> fileName);
 
 	if (removeFile == NULL) { //백업 중단할 파일이 리스트에 존재하지 않는 경우
@@ -568,14 +579,15 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	//char logmsg[1024] = "";
 
 	Node *recoverFile; //복구할 파일의 정보를 가져오기 위한 구조체
-	recoverFile = (Node *)malloc(sizeof(Node)); //recoverFile 노드 동적할당
+	//recoverFile = (Node *)malloc(sizeof(Node)); //recoverFile 노드 동적할당
 
 	recoverFile = findNode(linkedList, fileName); //입력받은 노드의 존재여부 확인
-	/*	
+	printf("recover File Name : %s\n", recoverFile -> fileName);
+
 	if (recoverFile == NULL) { //변경할 파일이 존재하지 않는 경우
 		printf("변경할 파일이 존재하지 않습니다.\n");
 		exit(1);
-	}*/
+	}
 
 	printf("recover : %s\n", recoverFile -> fileName);
 

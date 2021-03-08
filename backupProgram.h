@@ -7,7 +7,7 @@
 #include <sys/stat.h> // stat 구조체 사용 위한 헤더파일
 #include <dirent.h> // 디렉토리 정보 읽어오기 위한 헤더파일
 
-#define MAX_SIZE 99999
+#define MAX_SIZE 999
 
 //파일명으로 연결된 리스트의 노드
 typedef struct node {
