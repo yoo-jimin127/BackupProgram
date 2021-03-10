@@ -123,24 +123,21 @@ void addFileToList (char *dirName, Node *node) {
 
 // list 기능을 위해 모든 백업 리스트를 출력하는 함수
 void listFunc(LinkedList *linkedList) {
-	FILE *fptr = NULL;
+	Node *node;
 
-	fptr = fopen("backupList.list", "r");
+	node = linkedList -> head -> next;
 
-	while(feof(fptr) == 0) {
-		char buf[MAX_SIZE];
-		fgets(buf, MAX_SIZE, fptr);
-		printf("%s", buf);
+	while(node -> next != NULL) {
+		printf("%s\t\t%d\n", node -> fileName, node -> filePeriod);
+		node = node -> next;
 	}
-
-	fclose(fptr);
 }
 
 //================================디렉토리 관련 함수 정의부===================================
 
 //main에서 인자로 입력받은 절대경로의 접근 권한 확인 함수
 char *checkAccessDir(int argc, char **argv) {
-	static char backupdir[256] = ""; //반환할 경로 저장할 배열
+	static char backupdir[512] = ""; //반환할 경로 저장할 배열
 	struct dirent *dir; //dirent 구조체
 	struct stat sb; //stat 구조체
 	DIR *dirptr = NULL; //dirent 포인터
@@ -289,11 +286,7 @@ void printPrompt (char *absPath) {
 			strcpy(fileName, token);
 
 			//recover 기능 담당하는 함수에 filePath 넘기기
-			//printf("recover 함수 시작\n");
-
-			//printf("%s %s %s \n", order, absPath, fileName);
 			recoverFunc(&linkedList, absPath, fileName);
-			printf("recover 함수 종료\n");
 		//	break;
 		}
 
@@ -365,7 +358,7 @@ void addFunc(LinkedList *linkedList, char *dirPath, char *fileName, int period) 
 	FILE *fptr = NULL;
 	DIR *dptr = NULL;
 	char buf[256];
-	char fileNameBuf[256];
+	char fileNameBuf[512];
 	struct tm *loctm;
 	time_t timer;
 	char logmsg[1024] = "";
@@ -414,7 +407,7 @@ void removeFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	FILE *fptr = NULL;
 	DIR *dirptr = NULL;//dirent구조체 포인터
 	struct dirent *entry = NULL;//dirent구조체
-	char fullFileName[256]; 
+	char fullFileName[512]; 
 	char buf[256];
 	int removeFileCnt = 0; //백업디렉토리에서 삭제할 파일의 수 카운트
 
@@ -422,7 +415,7 @@ void removeFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	time_t timer;
 
 	char logmsg[1024];
-	char fulltime[100];
+	char fulltime[256];
 	int year, mon, day, hour, min, sec;
 
 	memset(fulltime, 0, 256);
@@ -531,69 +524,67 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	struct tm *loctm;
 	time_t timer;
 
-	char fullFileName[256]; //절대경로와 파일이름을 합친 배열
-	char fullDirName[256];
-	char logmsg[1024];
+	char fullFileName[512]; //절대경로와 파일이름을 합친 배열
+	char fullDirName[512];
 	char fulltime[100];
+	char logmsg[1024]; //로그메세지
 	int year, mon, day, hour, min, sec;
 	int rcvFileCnt = 0; //recover 파일 카운터 변수
 	
 	char rcvptr[100][256];//출력 내용 저장할 2차원 포인터
 	char *cmp_fileName;
 	char *buf;
+	char cwd[256];
 	char d_name_of_file[256];
 	int d_name_len = 0;
-	char name_tmp[300];
-	char size_tmp[100];
+	char size_tmp[100]; //파일 사이즈 저장 배열
 	int file_size = 0;
 
 	int userInput = 0; //사용자 입력값
 	
 	Node *recoverFile;
 
-	memset(fulltime, 0, 256);
-	memset(logmsg, 0, 1024);
-	memset(fullFileName, 0, 256);
+	memset(fulltime, 0, 100); //백업 시간 저장하는 메모리 초기화
+	memset(fullFileName, 0, 512); //절대경로/파일명 저장하는 메모리 초기화
 
-	sprintf(fullFileName, "%s/%s", dirPath, fileName);
-	sprintf(fullDirName, "%s/backup_directory", dirPath);
+	getcwd(cwd, 256);
+	sprintf(fullFileName, "%s/%s", cwd, fileName);
+	sprintf(fullDirName, "%s/backup_directory", cwd);
 
 	recoverFile = findNode(linkedList, fullFileName);
 	
-	/*
-	if (recoverFile == NULL) {
-		printf("변경할 파일이 존재하지 않습니다.\n");
-		exit(1);
-	} */
+	if (recoverFile -> fileName == NULL) {
+		printf("복구를 진행할 파일이 존재하지 않습니다.\n");
+		exit(0);
+	} 
 
 	timer = time(NULL);
 	loctm = localtime(&timer);
 	
 	dirptr = opendir(fullDirName);
-	
+	if (dirptr == NULL) {
+		printf("opendir() error\n");
+	}
+
 	//입력받은 파일명과 동일한 백업본 파일 2차원 배열에 저장해주는 작업
 	while((entry = readdir(dirptr)) != NULL) {
-		memset(cmp_fileName, 0, 256);
 		memset(d_name_of_file, 0, 256);
-		memset(name_tmp, 0, 300);
 		memset(size_tmp, 0, 100);
-		d_name_len = 0;
 
 		strcpy(d_name_of_file, entry -> d_name);
-		d_name_len = (int)(entry -> d_reclen +1);
 
 		cmp_fileName = strstr(d_name_of_file, fileName);
 
 		if (cmp_fileName != NULL) { //문자열 비교해 같은 부분 있으면
-			stat(d_name_of_file, &sb);
-			strcpy(name_tmp, d_name_of_file[d_name_len]); //출력할 배열에 백업시간 저장
+			stat(fileName, &sb);
+			char *token_1st = strtok(d_name_of_file, "_"); 
+			char *name_tmp = strtok(NULL, "_");//출력할 배열에 백업시간 저장
 
 			file_size = sb.st_size;
 			sprintf(size_tmp, "%dbytes", file_size);
 
 			sprintf(rcvptr[rcvFileCnt], "%d. %s \t %s", rcvFileCnt +1, name_tmp, size_tmp);//rcvptr 배열에 값 저장하는 작업 완료 
 
-			//printf("%s", rcvptr[rcvFileCnt]);
 			rcvFileCnt++; //파일 개수 +1
 		}
 	}
@@ -608,7 +599,6 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	scanf("%d", &userInput);
 
 	while((entry = readdir(dirptr)) != NULL) {
-		//char buf[256];
 		char recovered[256];
 		memset(d_name_of_file, 0, 256);
 		memset(buf, 0, 256);
@@ -616,32 +606,16 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 
 		strcpy(d_name_of_file, entry -> d_name);
 		buf = strstr(d_name_of_file, rcvptr[userInput]);
+		printf("buf : %s\n", buf);
 
 		if (buf != NULL) {
 			pthread_cancel(recoverFile -> tid); //백업 중이던 파일 중지시키고
 			sprintf(recovered, "%s_recovered", fileName); //fileName_recovered로 파일명 저장
 			rename(recoverFile -> fileName, recovered); // rename() 함수를 통해 _recovered파일로
 
-			addFunc(&linkedList, dirPath, recovered, recoverFile -> filePeriod); //복구된 파일버전 다시 백업 실행되도록
+			addFunc(linkedList, dirPath, recovered, recoverFile -> filePeriod); //복구된 파일버전 다시 백업 실행되도록
 		}
 	}
-
-
-
-	/*
-	logfptr = fopen("logfile.log", "r");
-	if (logfptr == NULL) {
-		printf("fopen() error\n");
-		break;
-	}
-
-	while(feof(logfptr) == 0) {
-		char buf[NAX_SIZE];
-		fgets(buf, MAX_SIZE, logfptr); //로그파일의 내용을 한줄씩 읽어옴
-		
-		if (strstr()) {}
-		*/
-
 
 	closedir(dirptr);
 
