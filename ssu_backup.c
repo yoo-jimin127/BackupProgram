@@ -523,156 +523,128 @@ static size_t getFileSize(const char *fileName) {
 //recover 기능을 수행하는 함수
 void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	struct stat sb;
-	struct stat tmpsb; //순회하는 백업본 파일 정보 저장 구조체
+	struct stat tmpsb;
 
-	DIR *dirptr = NULL;//dirent구조체 포인터
-	struct dirent *entry = NULL;//dirent 구조체
-	FILE *fptr = NULL; //파일 오픈을 위한 파일 포인터
-	FILE *src = NULL; //복사할 파일 포인터
-	FILE *dest = NULL; //붙여넣기할 파일 포인터
-
-	int rcvFileCnt = 0;//recover 파일 카운터 변수
-	char *cmp_fileName; //strstr() 리턴 값 저장 위한 배열
-	char tmpmem[400]; //2차원 포인터에 저장할 값을 임의로 담아두는 배열
-
-	char buf[256];
-	char backuptime[13]; //파일 백업 수행시간만 분리해 저장하는 배열
-	char fileSize[100] ="";//파일의 크기 저장을 위한 배열
-	char fullFileName[256];
-	int size = 0; //ftell() 함수의 리턴 값을 저장하는 변수
-	char rcvFileList[100][400]; //백업파일들을 담아놓기 위한 2차원 포인터
-
-	char fulltime[100];
-	char recovertime[100];
-
+	DIR *dirptr = NULL; //dirent 구조체 포인터
+	struct dirent *entry = NULL; //dirent 구조체
+	FILE *logfptr = NULL; //로그파일 포인터
 	struct tm *loctm;
 	time_t timer;
-	int backupFileCnt = 0; //백업된 파일의 개수
-	int userChoice = 0;
 
-	Node *recoverFile; //복구할 파일의 정보를 가져오기 위한 구조체
+	char fullFileName[256]; //절대경로와 파일이름을 합친 배열
+	char fullDirName[256];
+	char logmsg[1024];
+	char fulltime[100];
+	int year, mon, day, hour, min, sec;
+	int rcvFileCnt = 0; //recover 파일 카운터 변수
+	
+	char rcvptr[100][256];//출력 내용 저장할 2차원 포인터
+	char *cmp_fileName;
+	char *buf;
+	char d_name_of_file[256];
+	int d_name_len = 0;
+	char name_tmp[300];
+	char size_tmp[100];
+	int file_size = 0;
 
-	getcwd(buf, 256);
-	sprintf(fullFileName, "%s/%s", buf, fileName);
+	int userInput = 0; //사용자 입력값
+	
+	Node *recoverFile;
 
-	recoverFile = findNode(linkedList, fullFileName); //입력받은 노드의 존재여부 확인
-	printf("recover File Name : %s\n", recoverFile -> fileName);
+	memset(fulltime, 0, 256);
+	memset(logmsg, 0, 1024);
+	memset(fullFileName, 0, 256);
 
-	if (recoverFile == NULL) { //변경할 파일이 존재하지 않는 경우
+	sprintf(fullFileName, "%s/%s", dirPath, fileName);
+	sprintf(fullDirName, "%s/backup_directory", dirPath);
+
+	recoverFile = findNode(linkedList, fullFileName);
+	
+	/*
+	if (recoverFile == NULL) {
 		printf("변경할 파일이 존재하지 않습니다.\n");
 		exit(1);
-	}
+	} */
 
-	printf("recover : %s\n", recoverFile -> fileName);
-
-	//char *fulltime = (char *)malloc(sizeof(char)*100);
-	//char *recovertime = (char *)malloc(sizeof(char)*100); // 백업 수행시간을 정렬하기 위해
-
-	stat(recoverFile -> fileName, &sb); //파일 정보 저장
-
-	dirptr = opendir(buf);//현재 작업 디렉토리 오픈
-	if (dirptr == NULL) {
-		printf("백업 디렉토리를 열 수 없습니다.\n");
-		exit(0);
-	}
-
-	else {
-		while((entry = readdir(dirptr)) != NULL) {//파일 개수 카운트를 위한 반복문
-			memset(cmp_fileName, 0, 256);//cmp_fileName 수행시마다 배열 초기화
-
-			if ((cmp_fileName = strstr(entry->d_name, recoverFile -> fileName)) != NULL) {
-				rcvFileCnt++; //사용자가 입력한 파일의 백업본 개수 카운트
-			}	
-		}
-
-		//rcvFileList = (char**)malloc(sizeof(char *) * rcvFileCnt); //백업파일 개수만큼 동적할당
-		
-		/*
-		for (int i = 0; i < rcvFileCnt; i++) {
-			rcvFileList[i] = (char*)malloc(sizeof(char) * 400);
-		}*/
-		
-		while((entry = readdir(dirptr)) != NULL) {//파일 개수 카운트를 위한 반복문
-			memset(cmp_fileName, 0, 256);
-			memset(backuptime, 0, 13);
-			memset(tmpmem, 0, 400);
-			size = 0;
-			fptr = NULL;
-			int i = 1; // 0 : exit
-			int nameptr = 0; //백업수행시간의 포인터를 가져오기위한 변수
-
-			if ((cmp_fileName = strstr(entry -> d_name, recoverFile -> fileName)) != NULL) {
-				stat(entry -> d_name, &tmpsb);
-				size = tmpsb.st_size; //파일 크기 저장
-
-				sprintf(fileSize, "%dbytes", size);
-
-				nameptr = (int)(entry -> d_reclen + 1);//파일명 중 백업시간 기록 시작 위치 저장 
-				strcpy(backuptime, &(entry->d_name[nameptr]));//backuptime에 백업시간 저장
-
-				sprintf(tmpmem, "%d. %s \t %s", i, backuptime, fileSize);//순번, 백업시간, 파일 크기 저장
-				strcpy(rcvFileList[i],tmpmem);
-				i++;
-			}
-
-		}
-
-	}
-
-	//순번 파일명 파일크기 출력부
-	printf("0. exit\n");
-	for (int i = 1; i < rcvFileCnt; i++) {
-		printf("%s", rcvFileList[i]); //순번. 파일명 파일크기 출력
-	}
-
-	printf("choose file to recover : ");
-	scanf("%d", &userChoice);
-
-	for (int i = 1; i < rcvFileCnt; i++) { //인덱스 1부터 파일의 백업본이 저장되어 있음
-		if (userChoice == 0) {
-			exit(0);
-			return;//0을 입력한 경우 프롬프트로 제어 이동
-		}
-
-		else if (userChoice == i) {
-			//선택한 파일으로 fileName_recover 파일 복구
-			char recovered[256];
-			//char *tmprcv1; //사용자가 선택한 파일명에 접근하기 위해 사용되는 임시 배열
-			//char *tmprcv2;
-
-			char buffer[256]; //파일의 내용을 읽어와 쓰는 과정 중 잠시 사용되는 버퍼
-			int cnt = 1; 
-			pthread_cancel(recoverFile -> tid); //백업수행 종료 후 복구 진행을 위해 백업수행 스레드 종료
-			while ((entry = readdir(dirptr)) != NULL) { //찾는 파일을 가져옴
-				if (cnt == i) { //사용자가 입력한 순번과 순서대로 파일을 읽어들이는 파일 개수가 일치할 경우 
-					sprintf(recovered, "%s_recover", recoverFile -> fileName);
-					strcpy(entry->d_name, recovered);
-					break;
-				}
-
-				cnt++; //파일을 하나씩 읽을 때마다 카운트 수 +1
-			}
-
-			/*
-			   strcpy(tmprcv1,rcvFileList[i]); //사용자가 선택한 파일의 내용을 저장해둠
-			   sprintf(recovered, "%s_recover.txt", fileName); //수정할 것
-
-			   src = fopen(entry -> d_name, "r"); //선택한 파일로 접근하도록 수정할 것(dirent)
-			   dest = fopen(recovered, "w+");
-
-			   while (feof(src) == 0) {
-			   cnt = fread(buffer, sizeof(char), strlen(), src);
-			   fwrite(buffer, sizeof(char), cnt, dest); //읽어온 내용 recover파일에 붙여넣기
-			   }
-			 */
-		}
-	}
-
-	//fclose(fptr);
-	//fclose(src);
-	//fclose(dest);
-	//closedir(dirptr);
+	timer = time(NULL);
+	loctm = localtime(&timer);
 	
+	dirptr = opendir(fullDirName);
+	
+	//입력받은 파일명과 동일한 백업본 파일 2차원 배열에 저장해주는 작업
+	while((entry = readdir(dirptr)) != NULL) {
+		memset(cmp_fileName, 0, 256);
+		memset(d_name_of_file, 0, 256);
+		memset(name_tmp, 0, 300);
+		memset(size_tmp, 0, 100);
+		d_name_len = 0;
+
+		strcpy(d_name_of_file, entry -> d_name);
+		d_name_len = (int)(entry -> d_reclen +1);
+
+		cmp_fileName = strstr(d_name_of_file, fileName);
+
+		if (cmp_fileName != NULL) { //문자열 비교해 같은 부분 있으면
+			stat(d_name_of_file, &sb);
+			strcpy(name_tmp, d_name_of_file[d_name_len]); //출력할 배열에 백업시간 저장
+
+			file_size = sb.st_size;
+			sprintf(size_tmp, "%dbytes", file_size);
+
+			sprintf(rcvptr[rcvFileCnt], "%d. %s \t %s", rcvFileCnt +1, name_tmp, size_tmp);//rcvptr 배열에 값 저장하는 작업 완료 
+
+			//printf("%s", rcvptr[rcvFileCnt]);
+			rcvFileCnt++; //파일 개수 +1
+		}
+	}
+	
+	//2차원 배열 출력하고 사용자에게 원하는 백업버전 입력받는 작업
+	printf("0. exit\n");
+	for (int i = 0; i < rcvFileCnt; i++) {
+		printf("%s\n", rcvptr[i]);
+	}
+
+	printf("choose file : ");
+	scanf("%d", &userInput);
+
+	while((entry = readdir(dirptr)) != NULL) {
+		//char buf[256];
+		char recovered[256];
+		memset(d_name_of_file, 0, 256);
+		memset(buf, 0, 256);
+		memset(recovered, 0, 256);
+
+		strcpy(d_name_of_file, entry -> d_name);
+		buf = strstr(d_name_of_file, rcvptr[userInput]);
+
+		if (buf != NULL) {
+			pthread_cancel(recoverFile -> tid); //백업 중이던 파일 중지시키고
+			sprintf(recovered, "%s_recovered", fileName); //fileName_recovered로 파일명 저장
+			rename(recoverFile -> fileName, recovered); // rename() 함수를 통해 _recovered파일로
+
+			addFunc(&linkedList, dirPath, recovered, recoverFile -> filePeriod); //복구된 파일버전 다시 백업 실행되도록
+		}
+	}
+
+
+
+	/*
+	logfptr = fopen("logfile.log", "r");
+	if (logfptr == NULL) {
+		printf("fopen() error\n");
+		break;
+	}
+
+	while(feof(logfptr) == 0) {
+		char buf[NAX_SIZE];
+		fgets(buf, MAX_SIZE, logfptr); //로그파일의 내용을 한줄씩 읽어옴
+		
+		if (strstr()) {}
+		*/
+
+
+	closedir(dirptr);
+
 }
 
 
