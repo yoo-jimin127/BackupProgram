@@ -924,5 +924,20 @@ int lstat (const char *filename, struct stat *buf);
 * **recover 명령어** : 함수 실행 자체가 되지 않고 코어덤프 발생. remove에서와 같은 로직으로 파일을 findNode()를 통해 찾아오지만 이 마저도 실행안됨. 라인 별 디버깅 중.
   - rename() 함수 사용해 파일 관련 부분 재구현할 예정.
 
-#### 210309 진행 예정
-* recover 명령어 코어덤프만 해결하면 프로그램 구현 완료. 03/09에 구현 마무리할 예정!!
+    ------
+### 21.03.09 (화) 프로젝트 진행 계획 및 보고
+* recover 명령어 함수 디버깅 -> 계속 코어덤프가 발생하여 처음부터 재구현
+
+    ------
+### 21.03.10 (수) 프로젝트 진행 계획 및 보고
+* **list 명령어** : ```backupList.list```의 추가된 내용을 그대로 읽어오는 방식에서 백업리스트의 ```node -> fileName```, ```node -> filePeriod```를 fileCnt만큼 순차적으로 읽어오도록 구현방법 변경
+* **warning 해결** : 컴파일시 발생하는 warning 모두 해결
+  ![image](https://user-images.githubusercontent.com/66112716/110646683-79311900-81fa-11eb-8170-e709c0a68343.png)
+* **recover 명령어** : 코어덤프 해결한 뒤 프로그램 실행 시 생성되는 backup_directory를 open.
+  - ```recover <FILENAME>```의 filename을 가진 백업파일을 strstr()로 모음.
+  - 백업 수행시간을 저장하기 위해 strtok()를 사용해 위에서 필터링된 파일들 중 두번째 토큰을 rcvptr[][]에 저장.
+  - 순번, 파일크기와 함께 출력하고 사용자로부터 원하는 백업수행버전을 입력받는 것까지 구현 완료. 
+  ![image](https://user-images.githubusercontent.com/66112716/110646288-19d30900-81fa-11eb-9ed9-eaceb430936b.png)
+  - **추가 구현이 필요한 내용** : 사용자가 입력받은 백업본의 파일으로 복구하는 과정 디버깅 중.
+    - ```filename_recover.txt```가 백업 디렉토리와 로그에 추가되도록 코드 추가.
+    - 정상 작동 여부 확인.
