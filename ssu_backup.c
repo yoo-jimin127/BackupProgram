@@ -225,21 +225,21 @@ void printPrompt (char *absPath) {
 		if (strcmp(order, "add") == 0) {
 			token = strtok(NULL, " "); //다음 문자열 잘라 fileName에 저장
 			strcpy(fileName, token);
-			
+
 			token = strtok(NULL, " ");
 
 			if (token != NULL) tmpPeriod = atoi(token); // 다음 문자열 잘라 chPeriod에 저장
 
 			else {
 				printf("period를 입력하세요.\n");
-		//		break;
+				//		break;
 			}
 
 			period = tmpPeriod;
 
 			//add 기능 담당하는 함수에 filepath와 period 인자로 넘겨주기
 			addFunc(&linkedList, absPath, fileName, period);
-		//	break;
+			//	break;
 		}
 
 
@@ -277,7 +277,7 @@ void printPrompt (char *absPath) {
 
 			//compare 기능 담당하는 함수에 filePath, filePath2 넘기기
 			compareFunc(fileName, fileName2);
-		//	break;
+			//	break;
 		}
 
 		//recover <파일명>
@@ -287,31 +287,31 @@ void printPrompt (char *absPath) {
 
 			//recover 기능 담당하는 함수에 filePath 넘기기
 			recoverFunc(&linkedList, absPath, fileName);
-		//	break;
+			//	break;
 		}
 
 		//list 명령어
 		else if (strcmp(order, "list") == 0) {
 			listFunc(&linkedList);
-		//	break;
+			//	break;
 		}
 
 		//ls 명령어
 		else if (strcmp(order, "ls") == 0) {
 			system(userInput);
-		//	break;
+			//	break;
 		}
 
 		//vi 명령어
 		else if (strcmp(order, "vi") == 0) {
 			system(userInput);
-		//	break;
+			//	break;
 		}
 
 		//vim 명령어
 		else if (strcmp(order, "vim") == 0) {
 			system(userInput);
-		//	break;
+			//	break;
 		}
 
 		//exit 명령어
@@ -530,7 +530,7 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	char logmsg[1024]; //로그메세지
 	int year, mon, day, hour, min, sec;
 	int rcvFileCnt = 0; //recover 파일 카운터 변수
-	
+
 	char rcvptr[100][256];//출력 내용 저장할 2차원 포인터
 	char *cmp_fileName;
 	char *buf;
@@ -541,7 +541,9 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	int file_size = 0;
 
 	int userInput = 0; //사용자 입력값
-	
+	char chosen_time[512];
+	char find_file[256];
+
 	Node *recoverFile;
 
 	memset(fulltime, 0, 100); //백업 시간 저장하는 메모리 초기화
@@ -552,7 +554,7 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	sprintf(fullDirName, "%s/backup_directory", cwd);
 
 	recoverFile = findNode(linkedList, fullFileName);
-	
+
 	if (recoverFile -> fileName == NULL) {
 		printf("복구를 진행할 파일이 존재하지 않습니다.\n");
 		exit(0);
@@ -560,7 +562,7 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 
 	timer = time(NULL);
 	loctm = localtime(&timer);
-	
+
 	dirptr = opendir(fullDirName);
 	if (dirptr == NULL) {
 		printf("opendir() error\n");
@@ -588,33 +590,50 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 			rcvFileCnt++; //파일 개수 +1
 		}
 	}
-	
+
 	//2차원 배열 출력하고 사용자에게 원하는 백업버전 입력받는 작업
 	printf("0. exit\n");
 	for (int i = 0; i < rcvFileCnt; i++) {
 		printf("%s\n", rcvptr[i]);
 	}
 
-	printf("choose file : ");
+	printf("Choose file to recover : ");
 	scanf("%d", &userInput);
 
-	while((entry = readdir(dirptr)) != NULL) {
+	if (userInput == 0) { //0을 입력한 경우
+		exit(0);
+	}
+
+	else { //파일의 백업 버전을 입력한 경우
 		char recovered[256];
-		memset(d_name_of_file, 0, 256);
-		memset(buf, 0, 256);
 		memset(recovered, 0, 256);
 
-		strcpy(d_name_of_file, entry -> d_name);
-		buf = strstr(d_name_of_file, rcvptr[userInput]);
-		printf("buf : %s\n", buf);
+		strcpy(chosen_time, rcvptr[userInput - 1]); //사용자가 선택한 인덱스의 배열 가져옴
+		//printf("chosen_time : %s\n", chosen_time);
 
-		if (buf != NULL) {
-			pthread_cancel(recoverFile -> tid); //백업 중이던 파일 중지시키고
-			sprintf(recovered, "%s_recovered", fileName); //fileName_recovered로 파일명 저장
-			rename(recoverFile -> fileName, recovered); // rename() 함수를 통해 _recovered파일로
+		char *token_tmp = strtok(chosen_time, " "); //'순번.' 을 읽어옴
+		//printf("token_tmp : %s\n", token_tmp);
+		char *token_time = strtok(NULL, "\t"); //공백자 " " 이후의 백업시간을 토큰으로 가져옴
+		//printf("token_time : %s\n", token_time);
 
-			addFunc(linkedList, dirPath, recovered, recoverFile -> filePeriod); //복구된 파일버전 다시 백업 실행되도록
+		sprintf(find_file, "%s_%s", fileName, token_time); //fileName.txt_210312~으로 저장됨
+		printf("find_file ; %s\n", find_file);
+
+		char *finalName = strtok(find_file, "."); //ex) test1.txt -> test1만 가져오게 됨
+		printf("finalName : %s\n", finalName);
+
+		sprintf(recovered, "%s_recover.txt", finalName); //fileName_recover.txt생성
+		printf("recovered : %s\n", recovered);
+		
+		if (rename(recoverFile -> fileName, recovered) == 0) {
+			printf("Recovery success\n");
 		}
+
+		else {
+			printf("파일 복구에 실패하였습니다.\n");
+			exit(0);
+		}
+
 	}
 
 	closedir(dirptr);
@@ -685,10 +704,6 @@ void *thread_function (void *addFile) {
 	backupFile = (char *)malloc(sizeof(char) *256);
 
 	newNode -> tid = pthread_self(); 
-	//newNode -> filePeriod = period;
-	//newNode -> fileName = addFile;
-
-	//int dirResult = mkdir("generated_directory", 0755); // 백업이 진행된 파일들을 저장할 디렉토리 생성
 
 	fulltime = (char *)malloc(sizeof(char) *100);
 
@@ -722,7 +737,6 @@ void *thread_function (void *addFile) {
 	stat(newNode -> fileName, &statbuffer);
 
 	while(1) { //해당 노드가 pthread_exit() 까지 반복
-		//memset(justFileName, 0, 256);
 		memset(fullFilePath, 0, 256);
 		stat(newNode -> fileName, &statbuffer); //추가한 파일의 정보를 읽어올 수 있도록
 		tmpbuf = (char *)malloc(sizeof(char) * statbuffer.st_size); //파일 크기만큼 tmpbuf 동적할당
