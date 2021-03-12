@@ -953,4 +953,10 @@ int lstat (const char *filename, struct stat *buf);
 ### 21.03.12 (금) 프로젝트 진행 계획 및 보고
 * 어제 발생하였던 스레드 함수 오류 해결.
 * rename()을 이용하여 파일명을 파일명_recover로 수정하였더니 파일 이름이 바뀐 것 확인할 수 있었음.
-* fread(), fwrite() 사용해 백업본으로 복구하여 저장하는 작업 진행 중. 
+  - ![image](https://user-images.githubusercontent.com/66112716/110935642-0ac39680-8373-11eb-928c-83e6e0ba80bc.png)
+  - ![image](https://user-images.githubusercontent.com/66112716/110935675-16af5880-8373-11eb-9b7c-924265619e1c.png)
+  - rename()을 수행하면 일정 시간 후 프로그램이 셧다운 되는 오류 발생.
+    - 명세 '백업 수행 종료 후 복구 진행'에 따라 ```rename(), fread(), fwrite()``` 전에 해당 파일의 스레드를 ```pthread_cancel()``` 시켜주어 해결.
+* fread(), fwrite() 사용해 백업본으로 복구하여 저장하는 작업 진행.
+ - fgets(), fputs() 이용해서 구현하는 것으로 방법 변경함.
+ - 백업 디렉토리에 존재하는 파일의 내용을 fopen()하는 과정에서 오류 발생. 해결 방법을 모르겠음.. 계속 디버깅 중!
