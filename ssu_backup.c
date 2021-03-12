@@ -521,6 +521,8 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	DIR *dirptr = NULL; //dirent 구조체 포인터
 	struct dirent *entry = NULL; //dirent 구조체
 	FILE *logfptr = NULL; //로그파일 포인터
+	FILE *copy_fptr = NULL; //백업 파일 읽어오는 파일 포인터
+	FILE *paste_fptr = NULL; //리커버 파일에 넣는 파일 포인터
 	struct tm *loctm;
 	time_t timer;
 
@@ -612,32 +614,56 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		//printf("chosen_time : %s\n", chosen_time);
 
 		char *token_tmp = strtok(chosen_time, " "); //'순번.' 을 읽어옴
-		//printf("token_tmp : %s\n", token_tmp);
 		char *token_time = strtok(NULL, "\t"); //공백자 " " 이후의 백업시간을 토큰으로 가져옴
-		//printf("token_time : %s\n", token_time);
 
 		sprintf(find_file, "%s_%s", fileName, token_time); //fileName.txt_210312~으로 저장됨
-		printf("find_file ; %s\n", find_file);
 
 		char *finalName = strtok(find_file, "."); //ex) test1.txt -> test1만 가져오게 됨
-		printf("finalName : %s\n", finalName);
-
 		sprintf(recovered, "%s_recover.txt", finalName); //fileName_recover.txt생성
-		printf("recovered : %s\n", recovered);
 		
-		if (rename(recoverFile -> fileName, recovered) == 0) {
+		pthread_cancel(recoverFile -> tid); //백업 수행 종료 후 복구 진행
+			
+		char copybuf[MAX_SIZE + 1]; //파일의 내용을 fgets, fputs 하기 위한 버퍼
+		char copyFilePath[MAX_SIZE]; //절대경로/백업디렉토리/파일백업본 주소 저장 버퍼
+		
+		sprintf(copyFilePath, "%s/%s_%s", fullDirName, fileName, token_time);//fileName.txt_2103~
+		printf("copyFilePath : %s\n", copyFilePath);
+		
+		/*
+		if ((copy_fptr = fopen(copyFilePath, "r+")) == NULL) {
+			memset(copybuf, 0, MAX_SIZE + 1);
+			printf("fopen success\n");
+		}
+		*/
+
+		if (rename(recoverFile -> fileName, recovered) == 0) { //파일 이름 변경 성공 시
 			printf("Recovery success\n");
 		}
+		/*
+		if ((copy_fptr = fopen(copyFilePath, "r+")) != NULL) { //백업파일 open
+			memset(copybuf, 0, MAX_SIZE + 1);
+			printf("fopen success\n");
+
+			fgets(copybuf, sizeof(copybuf), copy_fptr); //백업 파일의 내용을 copybuf로 읽어옴
+			fclose(copy_fptr);
+
+			if (rename(recoverFile -> fileName, recovered) == 0) { //파일 이름 변경 성공 시
+				if ((paste_fptr = fopen(recovered, "w")) != NULL) { //백업내용 덮어쓰는 파일 open
+					fputs(copybuf, paste_fptr); //파일에 문자열 저장
+
+					printf("Recovery success\n");
+					fclose(paste_fptr);
+				}
+			}
+		} */
 
 		else {
 			printf("파일 복구에 실패하였습니다.\n");
 			exit(0);
 		}
-
 	}
 
 	closedir(dirptr);
-
 }
 
 
