@@ -626,36 +626,31 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		char copybuf[MAX_SIZE + 1]; //파일의 내용을 fgets, fputs 하기 위한 버퍼
 		char copyFilePath[MAX_SIZE]; //절대경로/백업디렉토리/파일백업본 주소 저장 버퍼
 		
-		sprintf(copyFilePath, "%s/%s_%s", fullDirName, fileName, token_time);//fileName.txt_2103~
-		printf("copyFilePath : %s\n", copyFilePath);
+		sprintf(copyFilePath, "backup_directory/%s_%s", fileName, token_time);//백업 디렉토리의 fileName.txt_2103~
 		
-		/*
-		if ((copy_fptr = fopen(copyFilePath, "r+")) == NULL) {
-			memset(copybuf, 0, MAX_SIZE + 1);
-			printf("fopen success\n");
-		}
-		*/
-
 		if (rename(recoverFile -> fileName, recovered) == 0) { //파일 이름 변경 성공 시
+			copy_fptr = fopen(copyFilePath, "r");
+			if (copy_fptr == NULL) {
+				printf("copy_fptr : fopen() error\n");
+				exit(1);
+			}
+
+			paste_fptr = fopen(recovered, "w");
+			if (paste_fptr == NULL) {
+				printf("paste_fptr : fopen() error\n");
+				exit(1);
+			}
+
+			while (feof(copy_fptr) == 0) {
+				int count = fread(copybuf, sizeof(char), MAX_SIZE, copy_fptr);
+				fwrite(copybuf, sizeof(char), count, paste_fptr);
+				memset(copybuf, 0, MAX_SIZE);
+	
+			}
+			fclose(copy_fptr);
+			fclose(paste_fptr);
 			printf("Recovery success\n");
 		}
-		/*
-		if ((copy_fptr = fopen(copyFilePath, "r+")) != NULL) { //백업파일 open
-			memset(copybuf, 0, MAX_SIZE + 1);
-			printf("fopen success\n");
-
-			fgets(copybuf, sizeof(copybuf), copy_fptr); //백업 파일의 내용을 copybuf로 읽어옴
-			fclose(copy_fptr);
-
-			if (rename(recoverFile -> fileName, recovered) == 0) { //파일 이름 변경 성공 시
-				if ((paste_fptr = fopen(recovered, "w")) != NULL) { //백업내용 덮어쓰는 파일 open
-					fputs(copybuf, paste_fptr); //파일에 문자열 저장
-
-					printf("Recovery success\n");
-					fclose(paste_fptr);
-				}
-			}
-		} */
 
 		else {
 			printf("파일 복구에 실패하였습니다.\n");
