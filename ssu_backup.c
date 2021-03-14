@@ -430,6 +430,7 @@ void removeFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 	sprintf(fullFileName, "%s/%s", buf, fileName);
 
 	removeFile = findNode(linkedList, fullFileName); //연결리스트에서 파일명의 노드를 찾아 리턴받음
+	removeNode(linkedList, fullFileName);
 
 	if (removeFile == NULL) { //백업 중단할 파일이 리스트에 존재하지 않는 경우
 		printf("백업을 중단할 파일이 백업 리스트에 존재하지 않습니다.\n");
@@ -499,6 +500,9 @@ void compareFunc(char *fileName1, char *fileName2) {
 			printf("FILENAME2 -> mtime : %sFILENAME2 ->  파일크기 : %d \n\n", mtime2, (int)(buf2.st_size));
 		}
 	}
+
+	fclose(file1);
+	fclose(file2);
 }
 
 //파일 크기를 가져오기 위한 함수 (compare) 명령어에서 사용
@@ -587,7 +591,7 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 			file_size = sb.st_size;
 			sprintf(size_tmp, "%dbytes", file_size);
 
-			sprintf(rcvptr[rcvFileCnt], "%d. %s \t %s", rcvFileCnt +1, name_tmp, size_tmp);//rcvptr 배열에 값 저장하는 작업 완료 
+			sprintf(rcvptr[rcvFileCnt], "%d. %s\t%s", rcvFileCnt +1, name_tmp, size_tmp);//rcvptr 배열에 값 저장하는 작업 완료 
 
 			rcvFileCnt++; //파일 개수 +1
 		}
@@ -627,28 +631,9 @@ void recoverFunc(LinkedList *linkedList, char *dirPath, char *fileName) {
 		char copyFilePath[MAX_SIZE]; //절대경로/백업디렉토리/파일백업본 주소 저장 버퍼
 		
 		sprintf(copyFilePath, "backup_directory/%s_%s", fileName, token_time);//백업 디렉토리의 fileName.txt_2103~
-		
-		if (rename(recoverFile -> fileName, recovered) == 0) { //파일 이름 변경 성공 시
-			copy_fptr = fopen(copyFilePath, "r");
-			if (copy_fptr == NULL) {
-				printf("copy_fptr : fopen() error\n");
-				exit(1);
-			}
+		//printf("copyFilePath : %s\n", copyFilePath);
 
-			paste_fptr = fopen(recovered, "w");
-			if (paste_fptr == NULL) {
-				printf("paste_fptr : fopen() error\n");
-				exit(1);
-			}
-
-			while (feof(copy_fptr) == 0) {
-				int count = fread(copybuf, sizeof(char), MAX_SIZE, copy_fptr);
-				fwrite(copybuf, sizeof(char), count, paste_fptr);
-				memset(copybuf, 0, MAX_SIZE);
-	
-			}
-			fclose(copy_fptr);
-			fclose(paste_fptr);
+		if (rename(copyFilePath, recovered) == 0) { //파일 이름 변경 성공 시
 			printf("Recovery success\n");
 		}
 
@@ -808,7 +793,6 @@ void *thread_function (void *addFile) {
 		sleep(newNode -> filePeriod);// 백업 수행 주기만큼 시간 지연
 
 	}
-
 	closedir(dirptr);
 }
 
