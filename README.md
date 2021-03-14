@@ -962,9 +962,19 @@ int lstat (const char *filename, struct stat *buf);
  - 백업 디렉토리에 존재하는 파일의 내용을 fopen()하는 과정에서 오류 발생. 해결 방법을 모르겠음.. 계속 디버깅 중!
 
     ------
-### 21.03.12 (금) 프로젝트 진행 계획 및 보고
+### 21.03.13 (토) 프로젝트 진행 계획 및 보고
 * **recover 명령어에서 백업파일의 내용을 _ recover 파일로 옮기는 작업**
   - fread(), fwrite()의 과정이 잘못되었는지 확인하기 위하여 ```test_fopen.c``` 파일을 만들어 ```fopen_test.txt```는 백업 디렉토리 안에 위치, ```paste.txt``` 파일을 밖에 위치하게 하여 fread(), fwrite() 작업을 해주었음.
   - 프로그램 구현에서와 동일한 방법을 사용했음에도 위의 test_fopen.c 예제코드에서는 fopen_test.txt의 내용이 paste.txt로 정상적으로 옮겨진 것을 확인.
   - ![image](https://user-images.githubusercontent.com/66112716/111029821-1a5de080-8442-11eb-9a8c-35b59d956eac.png)
   - 프로그램 코드에서는 ```copy_fptr```의 fopen() error가 발생함. 파일의 위치와 이름을 정확히 넘겨주었음에도 이러한 오류가 발생하여 해결 방법 모색 중.
+
+    ------
+### 21.03.14 (일) 프로젝트 진행 계획 및 보고
+* remove 명령어 수정 완료
+  ![image](https://user-images.githubusercontent.com/66112716/111071399-557f1300-8519-11eb-81cd-34d9e845495b.png)
+* recover 명령어 구현 완료
+  ![image](https://user-images.githubusercontent.com/66112716/111071417-76dfff00-8519-11eb-8ba7-e9b9c5814f11.png)
+  ![image](https://user-images.githubusercontent.com/66112716/111071429-80696700-8519-11eb-8e2e-4e15e2e44649.png)
+
+
