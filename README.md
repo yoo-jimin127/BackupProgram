@@ -1,4 +1,13 @@
 # lsp_winter_backup_program
+
+Linux 상에서 백업을 진행할 디렉터리 및 파일을 백업 리스트 상에 생성/삭제/비교/복귀하는 프로그램입니다.
+입력한 백업주기를 기반으로 파일이 백업됩니다.
+
+## 실행 방법
+[사용 매뉴얼 보기 🛠](https://github.com/yoo-jimin127/BackupProgram/blob/main/%EC%82%AC%EC%9A%A9%EB%A7%A4%EB%89%B4%EC%96%BC.md)
+
+## 프로그램 개발 일지 (학습 내용 및 구현 내용)
+
 ### 21.02.06 (토) 프로젝트 진행 계획 및 보고
 * ~~명세 분석 및 정리 요약~~ **(02.06 완료)**
 * ~~210203 진행되었던 명세 설명 내용 다시 이해~~ **(02.06 완료)**
@@ -68,7 +77,7 @@
           - 자원 해제용 or mutex lock 해제를 위한 용도로 사용 (동기화)
         - ```void pthread_cleanup_pop(int execute);``` : cleanup handler 함수 제거
           - execute값이 0일 경우 바로 cleanup handler 제거, 그 외의 값일 경우 cleanup handler 한번 실행 수 제거 <br>
-        [cleanup handler 함수 등록 관련 내용] (https://bitsoul.tistory.com/166)
+        [cleanup handler 함수 등록 관련 내용](https://bitsoul.tistory.com/166)
 
 *  **pthread_detach()** 함수 : th_id 식별자를 가지는 pthread가 부모 pthread로부터 독립<br>
 ```int pthread_detach(pthread_t td_id);```
@@ -78,7 +87,7 @@
 <br>
 
 #### 공유 자원에 대한 접근 제어를 위해 동기화, mutex 사용
-* [mutex 사용 이유, 동기화 달성 방법, mutex 생성 등에 대한 참고자료] (https://www.joinc.co.kr/w/Site/Thread/Beginning/Mutex)
+* [mutex 사용 이유, 동기화 달성 방법, mutex 생성 등에 대한 참고자료](https://www.joinc.co.kr/w/Site/Thread/Beginning/Mutex)
 * mutex 사용 시 참고할 사항
   - pthread_mutex_t : 뮤텍스 구조체
   - pthread_mutex_lock() : critical section 시작
@@ -96,12 +105,12 @@
   - 인자 : 파괴될 뮤텍스
   - 리턴 값 : 성공적 수행 시 0 리턴, 실패 시 오류 번호 리턴
  
- * [mutex 사용 예제] (https://bitsoul.tistory.com/172)
+ * [mutex 사용 예제](https://bitsoul.tistory.com/172)
  ![image](https://user-images.githubusercontent.com/66112716/107149616-e4d65b00-699c-11eb-9983-9257383ee01b.png)
  
 * **system()** 함수 : ```/bin/sh -c string```호출하여 지정된 명령어를 실행하고, 명령어가 끝난 후 반환함. 
   - system()함수 사용 방법
-  ```
+  ```c
   #include <stdlib.h>  //system() 함수 사용 위해 include
   #include <unistd.h>
   
@@ -116,7 +125,7 @@
   - 리턴 값 : 성공 시 **0 아닌 값**(string 값이 NULL이고, system()이 shell을 이용할 수 있는 경우) 리턴, 실패 시 0 리턴
     - /bin/sh 실행시키기 위한 execve() 호출 실패 시 127 리턴, 다른 에러의 경우 -1, 그렇지 않으면 명령어의 리턴코드 반환
   - system()은 다른 wait() 상태의 다른 자식에게 영향 X <br>
-[system() 함수 참고 자료] (https://www.joinc.co.kr/w/man/3/system)
+[system() 함수 참고 자료](https://www.joinc.co.kr/w/man/3/system)
 
 
 #### 멘토님/튜터님 피드백
@@ -146,7 +155,7 @@
 
 #### 210208 프로젝트 진행 보고 및 학습 내용
 * **stat 구조체** : 파일 정보를 저장하는 구조체
-```
+```c
 struct stat {
   dev_t st_dev; // 장치 파일의 위치 및 여부를 기술
   ino_t st_ino; // 파일의 inode 번호
@@ -167,7 +176,7 @@ struct stat {
   이 때, 파일 정보를 저장하는 stat 구조체에서 st_mtime 멤버와 st_size 멤버를 호출하여 비교하는 작업을 진행해 compare 기능을 구현하면 될 것으로 보임.
 
 * stst 구조체의 정보 확인을 위한 시스템 호출
-```
+```c
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -179,7 +188,7 @@ int lstat (const char *filename, struct stat *buf);
 * **lstat()** 함수 : stat 함수와 기능 
 * **fstat()** 함수 : 해당하는 파일의 디스크립터를 받아 stat 구조체에 정보를 저장
 
-[stat 구조체 관련 파일 정보 불러오는 함수] (https://cokk.tistory.com/51)
+[stat 구조체 관련 파일 정보 불러오는 함수](https://cokk.tistory.com/51)
 
 * **쉘(shell)** 이란 ?
   * 명령어와 프로그램 실행할 때 사용하는 인터페이스
@@ -213,7 +222,7 @@ int lstat (const char *filename, struct stat *buf);
     chmod +x test.sh
     ./test.sh
     ```
-  * [bash 쉘을 이용해 스크립트 만드는 방법] (https://poorman.tistory.com/316)
+  * [bash 쉘을 이용해 스크립트 만드는 방법](https://poorman.tistory.com/316)
   
 * 로그파일 생성 방법
   - 본 프로젝트에서의 로그파일 사용 목적 : 
@@ -221,12 +230,12 @@ int lstat (const char *filename, struct stat *buf);
     - [수행시간] 수행내용 형태로 로그파일 작성
     - add, remove, recover 명령어 실행 성공 시 로그파일에 기록
     - 시간 순서대로 로그 작성될 수 있도록 동기화 수행  
- - [로그파일 갱신하는 쉘 스크립트] (https://guinbun.tistory.com/28) <br>
+ - [로그파일 갱신하는 쉘 스크립트](https://guinbun.tistory.com/28) <br>
   -> 중간마다 생기는 갱신 과정 결과와 에러를 다른 로그에 기록하는 부분 참고
   
 * 명세 구현 아이디어 정리
   * 필요한 헤더파일 정리
-    ```
+    ```c
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
@@ -234,7 +243,7 @@ int lstat (const char *filename, struct stat *buf);
     #include <unistd.h>
     ```
   * ssu_backup 실행 시 디렉토리 생성할 경로 인자로 입력할 때 입력한 경로로 이동하기 위한 작업 : 입력값을 system() 함수를 이용하여 해당 디렉토리로 이동<br>
-  [system() 함수 사용해 쉘에서의 명령어 기능 구현] (https://computersource.tistory.com/67)
+  [system() 함수 사용해 쉘에서의 명령어 기능 구현](https://computersource.tistory.com/67)
   * usage 출력 방법 : ex) ```Usage : ./ssu_backup <dirname> ```
   * 명령어 실행 시 ```<FILENAME>```과 ```[PERIOD]```를 어떻게 구분하여 접근?
     - 구현 방향 : 이전 영단어 프로그램에서 사용하였던 strtok() 함수를 사용해 토큰을 분리하여 구조체 또는 링크드 리스트에 저장함 <br> -> 파일명은 해당 파일명을 불러오는 스레드로 넘기고, preiod는 백업주기를 관리하는 스레드로 넘김.
@@ -270,7 +279,7 @@ int lstat (const char *filename, struct stat *buf);
   <br>
   * 로그파일 작성 방법 : ```logfile.log``` 파일 만들어서 파일입출력 통해 ```fprintf()``` 함수로 수행 성공하면 로그파일에 넣기
      -> 명세 : 하나의 로그파일에 작성 (파일은 하나만 만들고 그 안에서 모든 백업 기록을 다룸. 시간 순으로 로그 작성할 수 있도록 작성하기) <br>
-     - [로그파일 작성 예시] (https://m.blog.naver.com/PostView.nhn?blogId=ew32&logNo=150168169124&proxyReferer=https:%2F%2Fwww.google.com%2F)
+     - [로그파일 작성 예시](https://m.blog.naver.com/PostView.nhn?blogId=ew32&logNo=150168169124&proxyReferer=https:%2F%2Fwww.google.com%2F)
      
  * main 함수에 경로를 인자로 넘겨주기
    ![image](https://user-images.githubusercontent.com/66112716/107370556-79b89000-6b26-11eb-9793-d0cf1fb71e8d.png)
@@ -285,8 +294,8 @@ int lstat (const char *filename, struct stat *buf);
     4. 디렉토리 접근 권한 없는 경우 : *디렉토리의 접근 권한 확인하는 함수 정의해 호출 : (https://pliss.tistory.com/95)* <br>
   
 * mkdir 함수 or 명령어 참고 자료
-  * [mkdir 함수] (https://shaeod.tistory.com/322) (https://www.it-note.kr/205)
-  * [터미널 명령어 mkdir, system() 사용] (https://m.blog.naver.com/PostView.nhn?blogId=skout123&logNo=50133723008&proxyReferer=https:%2F%2Fwww.google.com%2F)
+  * [mkdir 함수](https://shaeod.tistory.com/322) (https://www.it-note.kr/205)
+  * [터미널 명령어 mkdir, system() 사용](https://m.blog.naver.com/PostView.nhn?blogId=skout123&logNo=50133723008&proxyReferer=https:%2F%2Fwww.google.com%2F)
 
     
 #### 구현 중 질문 사항
@@ -323,8 +332,8 @@ int lstat (const char *filename, struct stat *buf);
   -> 사용자가 입력한 경로에 생성되는 백업 디렉토리의 이름을 통일하여 그 디렉토리만 열어서 읽어오거나, 다른 부분에서 통일시킨 뒤 파일을 만들어야할 것 같음.
 
 * removeNode() 함수 구현 참고 자료
-  - (https://www.geeksforgeeks.org/delete-a-linked-list-node-at-a-given-position/)
-  - (http://blog.naver.com/PostView.nhn?blogId=hmin011&logNo=150154090477)
+  - [참고자료 1](https://www.geeksforgeeks.org/delete-a-linked-list-node-at-a-given-position/)
+  - [참고자료 2](http://blog.naver.com/PostView.nhn?blogId=hmin011&logNo=150154090477)
   
 * splitByToken() 함수 구현 중 공백문자를 기준으로 2번째 저장되는 토큰은 node 구조체의 fileName으로, 3번째 저장되는 토큰은 fileInfo의 filePeriod 멤버에 저장 <br>
   -> 구조체의 멤버 선언이 잘못 된 것으로 판단됨. 수정하기 <br>
@@ -403,9 +412,9 @@ int lstat (const char *filename, struct stat *buf);
 * checkAccessDir()에서 고려해야 할 조건
   1. 상대경로(같은 디렉토리 안에 있는 경우)를 입력받았을 때, 이를 파일작업이 가능하게 할 수 있도록 절대경로로 바꿔주어야함.
     - ```_fullpath()```함수 사용해 상대경로로 입력된 인자를 절대경로로 바꿔주는 작업 진행 가능.
-    - [```_fullpath()``` 함수](https://docs.microsoft.com/ko-kr/cpp/c-runtime-library/reference/fullpath-wfullpath?view=msvc-160)
+    - [_fullpath() 함수](https://docs.microsoft.com/ko-kr/cpp/c-runtime-library/reference/fullpath-wfullpath?view=msvc-160)
   2. 인자 X 경우 : 현재 작업 dir 밑에 백업dir 생성 ```mkdir()```함수 사용해 현재 디렉토리(current working directory) 밑에 디렉토리 생성된 것 확인 완료.
-    ```
+    ```c
     int main() {
       DIR *dir_info;
       struct dirent *dir_entry;
@@ -433,5 +442,8 @@ int lstat (const char *filename, struct stat *buf);
   
 #### 구현 중 질문 사항
 * checkAccessDir()에서 고려할 조건 중 3번의 경우 cmd 명령어 ```find```나 ```dir```를 통해 인자로 입력받은 dir 찾을 수 있는 것으로 알고 있습니다. ```windows("find <dirname>");```와 같이 함수에서 입력받은 dirname을 넘겨 사용할 수 있나요?<br>
-  -> ```DIR *dir = opendir(); dir == NULL```이면 해당 디렉토리 찾을 수 없는 것으로 처리해도 되나요??
+  -> ```DIR *dir = opendir(); dir == NULL```이면 해당 디렉토리 찾을 수 없는 것으로 처리해도 되나요?? <br>
   -> ```stat()``` or ```lstat()``` 함수 이용해서 구현해도 가능. opendir() 사용해도 가능!
+  
+### 구현 완료
+[프로그램 소스코드](https://github.com/yoo-jimin127/BackupProgram/blob/master/ssu_backup.c)
