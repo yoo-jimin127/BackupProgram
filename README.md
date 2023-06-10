@@ -68,7 +68,7 @@
           - 자원 해제용 or mutex lock 해제를 위한 용도로 사용 (동기화)
         - ```void pthread_cleanup_pop(int execute);``` : cleanup handler 함수 제거
           - execute값이 0일 경우 바로 cleanup handler 제거, 그 외의 값일 경우 cleanup handler 한번 실행 수 제거 <br>
-        [cleanup handler 함수 등록 관련 내용] (https://bitsoul.tistory.com/166)
+        [cleanup handler 함수 등록 관련 내용](https://bitsoul.tistory.com/166)
 
 *  **pthread_detach()** 함수 : th_id 식별자를 가지는 pthread가 부모 pthread로부터 독립<br>
 ```int pthread_detach(pthread_t td_id);```
@@ -78,7 +78,7 @@
 <br>
 
 #### 공유 자원에 대한 접근 제어를 위해 동기화, mutex 사용
-* [mutex 사용 이유, 동기화 달성 방법, mutex 생성 등에 대한 참고자료] (https://www.joinc.co.kr/w/Site/Thread/Beginning/Mutex)
+* [mutex 사용 이유, 동기화 달성 방법, mutex 생성 등에 대한 참고자료](https://www.joinc.co.kr/w/Site/Thread/Beginning/Mutex)
 * mutex 사용 시 참고할 사항
   - pthread_mutex_t : 뮤텍스 구조체
   - pthread_mutex_lock() : critical section 시작
@@ -96,7 +96,7 @@
   - 인자 : 파괴될 뮤텍스
   - 리턴 값 : 성공적 수행 시 0 리턴, 실패 시 오류 번호 리턴
  
- * [mutex 사용 예제] (https://bitsoul.tistory.com/172)
+ * [mutex 사용 예제](https://bitsoul.tistory.com/172)
  ![image](https://user-images.githubusercontent.com/66112716/107149616-e4d65b00-699c-11eb-9983-9257383ee01b.png)
  
 * **system()** 함수 : ```/bin/sh -c string```호출하여 지정된 명령어를 실행하고, 명령어가 끝난 후 반환함. 
@@ -116,7 +116,7 @@
   - 리턴 값 : 성공 시 **0 아닌 값**(string 값이 NULL이고, system()이 shell을 이용할 수 있는 경우) 리턴, 실패 시 0 리턴
     - /bin/sh 실행시키기 위한 execve() 호출 실패 시 127 리턴, 다른 에러의 경우 -1, 그렇지 않으면 명령어의 리턴코드 반환
   - system()은 다른 wait() 상태의 다른 자식에게 영향 X <br>
-[system() 함수 참고 자료] (https://www.joinc.co.kr/w/man/3/system)
+[system() 함수 참고 자료](https://www.joinc.co.kr/w/man/3/system)
 
 
 #### 멘토님/튜터님 피드백
@@ -179,7 +179,7 @@ int lstat (const char *filename, struct stat *buf);
 * **lstat()** 함수 : stat 함수와 기능 
 * **fstat()** 함수 : 해당하는 파일의 디스크립터를 받아 stat 구조체에 정보를 저장
 
-[stat 구조체 관련 파일 정보 불러오는 함수] (https://cokk.tistory.com/51)
+[stat 구조체 관련 파일 정보 불러오는 함수](https://cokk.tistory.com/51)
 
 * **쉘(shell)** 이란 ?
   * 명령어와 프로그램 실행할 때 사용하는 인터페이스
@@ -213,7 +213,7 @@ int lstat (const char *filename, struct stat *buf);
     chmod +x test.sh
     ./test.sh
     ```
-  * [bash 쉘을 이용해 스크립트 만드는 방법] (https://poorman.tistory.com/316)
+  * [bash 쉘을 이용해 스크립트 만드는 방법](https://poorman.tistory.com/316)
   
 * 로그파일 생성 방법
   - 본 프로젝트에서의 로그파일 사용 목적 : 
@@ -221,7 +221,7 @@ int lstat (const char *filename, struct stat *buf);
     - [수행시간] 수행내용 형태로 로그파일 작성
     - add, remove, recover 명령어 실행 성공 시 로그파일에 기록
     - 시간 순서대로 로그 작성될 수 있도록 동기화 수행  
- - [로그파일 갱신하는 쉘 스크립트] (https://guinbun.tistory.com/28) <br>
+ - [로그파일 갱신하는 쉘 스크립트](https://guinbun.tistory.com/28) <br>
   -> 중간마다 생기는 갱신 과정 결과와 에러를 다른 로그에 기록하는 부분 참고
   
 * 명세 구현 아이디어 정리
@@ -270,7 +270,7 @@ int lstat (const char *filename, struct stat *buf);
   <br>
   * 로그파일 작성 방법 : ```logfile.log``` 파일 만들어서 파일입출력 통해 ```fprintf()``` 함수로 수행 성공하면 로그파일에 넣기
      -> 명세 : 하나의 로그파일에 작성 (파일은 하나만 만들고 그 안에서 모든 백업 기록을 다룸. 시간 순으로 로그 작성할 수 있도록 작성하기) <br>
-     - [로그파일 작성 예시] (https://m.blog.naver.com/PostView.nhn?blogId=ew32&logNo=150168169124&proxyReferer=https:%2F%2Fwww.google.com%2F)
+     - [로그파일 작성 예시](https://m.blog.naver.com/PostView.nhn?blogId=ew32&logNo=150168169124&proxyReferer=https:%2F%2Fwww.google.com%2F)
      
  * main 함수에 경로를 인자로 넘겨주기
    ![image](https://user-images.githubusercontent.com/66112716/107370556-79b89000-6b26-11eb-9793-d0cf1fb71e8d.png)
@@ -285,8 +285,8 @@ int lstat (const char *filename, struct stat *buf);
     4. 디렉토리 접근 권한 없는 경우 : *디렉토리의 접근 권한 확인하는 함수 정의해 호출 : (https://pliss.tistory.com/95)* <br>
   
 * mkdir 함수 or 명령어 참고 자료
-  * [mkdir 함수] (https://shaeod.tistory.com/322) (https://www.it-note.kr/205)
-  * [터미널 명령어 mkdir, system() 사용] (https://m.blog.naver.com/PostView.nhn?blogId=skout123&logNo=50133723008&proxyReferer=https:%2F%2Fwww.google.com%2F)
+  * [mkdir 함수](https://shaeod.tistory.com/322) (https://www.it-note.kr/205)
+  * [터미널 명령어 mkdir, system() 사용](https://m.blog.naver.com/PostView.nhn?blogId=skout123&logNo=50133723008&proxyReferer=https:%2F%2Fwww.google.com%2F)
 
     
 #### 구현 중 질문 사항
